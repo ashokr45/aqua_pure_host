@@ -50709,7 +50709,7 @@ return A.O($async$o1,r)},
 nJ(a){return this.aHs(a)},
 aHs(a){var s=0,r=A.P(t.Ct),q,p,o,n,m
 var $async$nJ=A.Q(function(b,c){if(b===1)return A.M(c,r)
-while(true)switch(s){case 0:p=A.j1("http://3.82.225.92:8000/users",0,null)
+while(true)switch(s){case 0:p=A.j1("http://3.82.225.92:8000/users/",0,null)
 o=t.N
 n=A.al(["Content-Type","application/json"],o,o)
 s=3
