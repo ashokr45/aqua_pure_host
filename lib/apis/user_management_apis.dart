@@ -21,7 +21,7 @@ final String baseUrl = TTexts.baseUrl;
 
   Future<UserModel> addUser(UserModel user) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/users'),
+      Uri.parse('$baseUrl/users/'),
       headers: {"Content-Type": "application/json"},
       body: json.encode({
         'username': user.username,
