@@ -2,10 +2,10 @@ import 'package:aqua_pure/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'OverylaySample.dart';
-import 'features/authentication/LoginPage/loginPage.dart';
-import 'features/presentations/screens/AlarmScreen/Alarmdesktopscreen.dart';
-import 'features/presentations/screens/RealData/RealTimeDesktop.dart';
-import 'features/presentations/screens/StartScreen/StartPage.dart';
+import 'screens/authentication/LoginPage/loginPage.dart';
+import 'screens/presentations/screens/AlarmScreen/Alarmdesktopscreen.dart';
+import 'screens/presentations/screens/RealData/RealTimeDesktop.dart';
+import 'screens/presentations/screens/StartScreen/StartPage.dart';
 
 
 

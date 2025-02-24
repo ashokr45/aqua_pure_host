@@ -1,18 +1,18 @@
-import 'package:aqua_pure/features/presentations/screens/AlarmScreen/AlarmScreen.dart';
-import 'package:aqua_pure/features/presentations/screens/Dashboard/Dashboard_mobile.dart';
-import 'package:aqua_pure/features/presentations/screens/Manual%20Control/manual_control.dart';
-import 'package:aqua_pure/features/presentations/screens/purifier_manager/PurifyManager.dart';
+import 'package:aqua_pure/screens/presentations/screens/AlarmScreen/AlarmScreen.dart';
+import 'package:aqua_pure/screens/presentations/screens/Dashboard/Dashboard_mobile.dart';
+import 'package:aqua_pure/screens/presentations/screens/Manual%20Control/manual_control.dart';
+import 'package:aqua_pure/screens/presentations/screens/purifier_manager/PurifyManager.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:iconsax/iconsax.dart';
-import '../features/presentations/screens/ContactScreen/Contactdesktopscreen.dart';
-import '../features/presentations/screens/Dashboard/Dashboard.dart';
-import '../features/presentations/screens/DataTable/Data_analysis.dart';
-import '../features/presentations/screens/Main_Interface/main_interfaceResponsive.dart';
-import '../features/presentations/screens/RealData/RealData.dart';
-import '../features/presentations/screens/settings/General_purpose.dart';
-import '../features/presentations/screens/usermanagement/UsermanagementDesktop.dart';
+import '../screens/presentations/screens/ContactScreen/Contactdesktopscreen.dart';
+import '../screens/presentations/screens/Dashboard/Dashboard.dart';
+import '../screens/presentations/screens/DataTable/Data_analysis.dart';
+import '../screens/presentations/screens/Main_Interface/main_interfaceResponsive.dart';
+import '../screens/presentations/screens/RealData/RealData.dart';
+import '../screens/presentations/screens/settings/General_purpose.dart';
+import '../screens/presentations/screens/usermanagement/UsermanagementDesktop.dart';
 import '../utils/constants/colors.dart';
 
 
@@ -109,7 +109,7 @@ class sideMenu extends StatelessWidget {
             leading: Icon(Iconsax.user),
             title: Text('User Management'),
             onTap: () {
-              Get.to(() => Usermanagementdesktop());
+              Get.to(() => UserManagementDesktop());
 
             },
           ),

@@ -1,7 +1,7 @@
 
 class TTexts{
 
-
+static const String baseUrl = 'http://3.82.225.92:8000';
 
   static const String loginTitle = "Welcome back,";
   static const String loginSubTitle = "Lorem ipsum dolor sit";
