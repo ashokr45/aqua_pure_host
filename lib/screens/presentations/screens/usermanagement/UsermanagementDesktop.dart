@@ -409,9 +409,14 @@ class UserDataSource extends DataGridSource {
   }
 }
 
+class AddUserDialog extends StatefulWidget {
+  AddUserDialog({Key? key}) : super(key: key);
 
+  @override
+  _AddUserDialogState createState() => _AddUserDialogState();
+}
 
-class AddUserDialog extends StatelessWidget {
+class _AddUserDialogState extends State<AddUserDialog> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -420,8 +425,6 @@ class AddUserDialog extends StatelessWidget {
   final TextEditingController numberOfSystemsController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController statusController = TextEditingController();
-
-  final UserController userController = Get.find<UserController>();
 
   // Define the list of role options.
   final List<String> roleOptions = [
@@ -432,163 +435,161 @@ class AddUserDialog extends StatelessWidget {
     "operator"
   ];
 
-  AddUserDialog({Key? key}) : super(key: key);
+  // Declare selectedRole as a member variable so it persists.
+  String? selectedRole;
+
+  final UserController userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
-    // Use StatefulBuilder to manage the dropdown selection for role locally.
-    return StatefulBuilder(
-      builder: (context, setState) {
-        String? selectedRole;
-        return AlertDialog(
-          title: Text(
-            "Add User",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          content: Container(
-            width: 600, // Fixed width for a desktop-friendly layout
-            child: SingleChildScrollView(
-              child: Wrap(
-                spacing: 20,
-                runSpacing: 20,
-                children: [
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        labelText: "Username",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+    return AlertDialog(
+      title: Text(
+        "Add User",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      content: Container(
+        width: 600, // Fixed width for a desktop-friendly layout
+        child: SingleChildScrollView(
+          child: Wrap(
+            spacing: 20,
+            runSpacing: 20,
+            children: [
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: usernameController,
+                  decoration: InputDecoration(
+                    labelText: "Username",
+                    border: OutlineInputBorder(),
                   ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: "Name",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: "Email",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: contactController,
-                      decoration: InputDecoration(
-                        labelText: "Contact Number",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        border: OutlineInputBorder(),
-                      ),
-                      obscureText: true,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: numberOfSystemsController,
-                      decoration: InputDecoration(
-                        labelText: "Number of Systems",
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: locationController,
-                      decoration: InputDecoration(
-                        labelText: "Location",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  // Replace the role text field with a dropdown.
-                  SizedBox(
-                    width: 280,
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: "Role",
-                        border: OutlineInputBorder(),
-                      ),
-                      value: selectedRole,
-                      items: roleOptions.map((String role) {
-                        return DropdownMenuItem<String>(
-                          value: role,
-                          child: Text(role),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedRole = newValue;
-                        });
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    width: 280,
-                    child: TextField(
-                      controller: statusController,
-                      decoration: InputDecoration(
-                        labelText: "Status",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "Name",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: contactController,
+                  decoration: InputDecoration(
+                    labelText: "Contact Number",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: numberOfSystemsController,
+                  decoration: InputDecoration(
+                    labelText: "Number of Systems",
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: locationController,
+                  decoration: InputDecoration(
+                    labelText: "Location",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              // Use a DropdownButtonFormField for the role selection.
+              SizedBox(
+                width: 280,
+                child: DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: "Role",
+                    border: OutlineInputBorder(),
+                  ),
+                  value: selectedRole,
+                  items: roleOptions.map((String role) {
+                    return DropdownMenuItem<String>(
+                      value: role,
+                      child: Text(role),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedRole = newValue;
+                    });
+                    print(selectedRole);
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: statusController,
+                  decoration: InputDecoration(
+                    labelText: "Status",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: Text("Cancel", style: TextStyle(color: TColors.textBlack)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final newUser = UserModel(
-                  id: 0, // The backend should assign an ID
-                  username: usernameController.text,
-                  name: nameController.text,
-                  email: emailController.text,
-                  contactNumber: contactController.text,
-                  password: passwordController.text,
-                  numberOfSystems: int.tryParse(numberOfSystemsController.text) ?? 0,
-                  location: locationController.text,
-                  role: selectedRole ?? "",
-                  status: statusController.text,
-                );
-                userController.addUser(newUser);
-              },
-              child: Text("Add", style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            ),
-          ],
-        );
-      },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("Cancel", style: TextStyle(color: Colors.black)),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final newUser = UserModel(
+              id: 0, // The backend should assign an ID
+              username: usernameController.text,
+              name: nameController.text,
+              email: emailController.text,
+              contactNumber: contactController.text,
+              password: passwordController.text,
+              numberOfSystems: int.tryParse(numberOfSystemsController.text) ?? 0,
+              location: locationController.text,
+              role: selectedRole ?? "",
+              status: statusController.text,
+            );
+            userController.addUser(newUser);
+          },
+          child: Text("Add", style: TextStyle(color: Colors.white)),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+        ),
+      ],
     );
   }
 }
