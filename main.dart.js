@@ -50694,7 +50694,7 @@ A.aCY.prototype={
 o1(){var s=0,r=A.P(t.Ly),q,p,o,n,m
 var $async$o1=A.Q(function(a,b){if(a===1)return A.M(b,r)
 while(true)switch(s){case 0:s=3
-return A.V(A.bon(A.j1("http://3.82.225.92:8000/users",0,null)),$async$o1)
+return A.V(A.bon(A.j1("http://3.82.225.92:8000/users/",0,null)),$async$o1)
 case 3:p=b
 o=p.b
 n=p.e
