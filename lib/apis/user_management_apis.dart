@@ -8,7 +8,7 @@ class UserManagementApis {
   
 final String baseUrl = TTexts.baseUrl;
   Future<List<UserModel>> fetchUsers() async {
-    final response = await http.get(Uri.parse('$baseUrl/users'));
+    final response = await http.get(Uri.parse('$baseUrl/users/'));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       return data.map((user) => UserModel.fromJson(user)).toList();
