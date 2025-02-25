@@ -51,7 +51,8 @@ class UserController extends GetxController {
       return userList.where((user) {
         return user.name.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
             user.username.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-            user.role.toLowerCase().contains(searchQuery.value.toLowerCase());
+            user.role.toLowerCase().contains(searchQuery.value.toLowerCase()) || 
+            user.location.toLowerCase().contains(searchQuery.value.toLowerCase());
       }).toList();
     }
   }

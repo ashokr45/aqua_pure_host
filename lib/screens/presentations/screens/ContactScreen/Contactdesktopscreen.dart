@@ -91,15 +91,18 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
                     .size
                     .height,
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(40.0),
                   child: Container(
                     width: double.infinity,
                     child: Stack(
                       children: [
                         Image.asset(
                           "assets/sample.png",
-                          fit: BoxFit.fill,
-                          width: double.infinity,
+                          fit: BoxFit.contain,
+                          width:  MediaQuery
+                              .of(context)
+                              .size
+                              .width,
                           height: MediaQuery
                               .of(context)
                               .size

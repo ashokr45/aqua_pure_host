@@ -17,7 +17,7 @@ class DashboardDesktop extends StatefulWidget {
 
 class _DashboardDesktopState extends State<DashboardDesktop> {
   // Existing Purifier Dropdown (for image/table switch)
-  String? selectedValue; 
+  String? selectedValue;
   final List<String> dropdownOptions = [
     "PURIFIER 1001",
     "PURIFIER 1002",
@@ -364,31 +364,44 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
   }
 
   Widget _buildPurifierImage() {
+    String assetPath;
     if (selectedValue == "PURIFIER 1001") {
-      return Center(
-        child: Container(
-          width: 1004,
-          height: 596,
-          child: Image.asset("assets/HMIR.png", fit: BoxFit.fill),
-        ),
-      );
+      assetPath = "assets/HMIR.png";
     } else if (selectedValue == "PURIFIER 1002") {
-      return Center(
-        child: Container(
-          width: 1004,
-          height: 596,
-          child: Image.asset("assets/HMIR2.png", fit: BoxFit.fill),
-        ),
-      );
+      assetPath = "assets/HMIR2.png";
     } else {
-      return Center(
-        child: Container(
+      assetPath = "assets/HMIR3.png";
+    }
+   return Center(
+    child: Stack(
+      clipBehavior: Clip.none, // Allow children to paint outside the bounds
+      children: [
+        Container(
           width: 1004,
           height: 596,
-          child: Image.asset("assets/HMIR3.png", fit: BoxFit.fill),
+          child: Image.asset(assetPath, fit: BoxFit.contain),
         ),
-      );
-    }
+        // Full-screen icon positioned slightly above and to the right of the image.
+        Positioned(
+          top: -20, // Moves the icon 20 pixels above the container
+          right: -30, // Moves the icon 30 pixels to the right of the container
+          child: IconButton(
+            icon: Icon(Icons.fullscreen, color: TColors.textBlack, size: 30),
+            onPressed: () {
+              // Push a full-screen view of the image.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      FullScreenImagePage(assetPath: assetPath),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  );
   }
 }
 
@@ -459,6 +472,33 @@ class PurifierDataSource extends DataGridSource {
           );
         }
       }).toList(),
+    );
+  }
+}
+
+/// Full screen view for the purifier image.
+class FullScreenImagePage extends StatelessWidget {
+  final String assetPath;
+  const FullScreenImagePage({Key? key, required this.assetPath})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.close, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          child: Image.asset(assetPath, fit: BoxFit.contain),
+        ),
+      ),
     );
   }
 }

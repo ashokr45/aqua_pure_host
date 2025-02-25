@@ -168,7 +168,7 @@ class _QManualContainerState extends State<QManualContainer> {
         color: TColors.textWhite, // Replace with your TColors.appBarColor
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 350),
         child: Row(
           children: [
             Text(widget.title),

@@ -422,9 +422,12 @@ class _AddUserDialogState extends State<AddUserDialog> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController contactController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController numberOfSystemsController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
-  final TextEditingController statusController = TextEditingController();
+  
+  // Remove text controllers for numberOfSystems and status.
+  // Instead, we use selected values.
+  int selectedNumberOfSystems = 0;
+  String selectedStatus = "active";
 
   // Define the list of role options.
   final List<String> roleOptions = [
@@ -454,6 +457,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
             spacing: 20,
             runSpacing: 20,
             children: [
+              // Username
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -464,6 +468,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
+              // Name
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -474,6 +479,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
+              // Email
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -484,6 +490,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
+              // Contact Number
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -494,6 +501,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
+              // Password
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -505,17 +513,29 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   obscureText: true,
                 ),
               ),
+              // Number of Systems Dropdown (0 to 9)
               SizedBox(
                 width: 280,
-                child: TextField(
-                  controller: numberOfSystemsController,
+                child: DropdownButtonFormField<int>(
                   decoration: InputDecoration(
                     labelText: "Number of Systems",
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: TextInputType.number,
+                  value: selectedNumberOfSystems,
+                  items: List.generate(10, (index) => index)
+                      .map((number) => DropdownMenuItem<int>(
+                            value: number,
+                            child: Text(number.toString()),
+                          ))
+                      .toList(),
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      selectedNumberOfSystems = newValue!;
+                    });
+                  },
                 ),
               ),
+              // Location
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -526,7 +546,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
-              // Use a DropdownButtonFormField for the role selection.
+              // Role Dropdown
               SizedBox(
                 width: 280,
                 child: DropdownButtonFormField<String>(
@@ -549,14 +569,44 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   },
                 ),
               ),
-              SizedBox(
+              // Status Radio Buttons (Active/Inactive)
+              Container(
                 width: 280,
-                child: TextField(
-                  controller: statusController,
-                  decoration: InputDecoration(
-                    labelText: "Status",
-                    border: OutlineInputBorder(),
-                  ),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Status"),
+                    Row(
+                      children: [
+                        Radio<String>(
+                          value: "active",
+                          groupValue: selectedStatus,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedStatus = value!;
+                            });
+                          },
+                        ),
+                        Text("Active"),
+                        SizedBox(width: 20),
+                        Radio<String>(
+                          value: "inactive",
+                          groupValue: selectedStatus,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedStatus = value!;
+                            });
+                          },
+                        ),
+                        Text("Inactive"),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -579,10 +629,10 @@ class _AddUserDialogState extends State<AddUserDialog> {
               email: emailController.text,
               contactNumber: contactController.text,
               password: passwordController.text,
-              numberOfSystems: int.tryParse(numberOfSystemsController.text) ?? 0,
+              numberOfSystems: selectedNumberOfSystems,
               location: locationController.text,
               role: selectedRole ?? "",
-              status: statusController.text,
+              status: selectedStatus,
             );
             userController.addUser(newUser);
           },

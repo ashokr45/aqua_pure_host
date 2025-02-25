@@ -17,7 +17,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
   final TextEditingController manufactureDateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
-  // Updated configuration items list
+  // Updated configuration items list with all 46 entries from the image
   List<Map<String, dynamic>> configItems = [
     {'name': 'Feed Tank', 'isSelected': false},
     {'name': 'Raw Water Tank Low Level Switch', 'isSelected': false},
@@ -39,31 +39,51 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
     {'name': 'Blending Valve', 'isSelected': false},
     {'name': 'Pressure Switch Low (Included)', 'isSelected': false},
     {'name': 'RO High Pressure Pump (Included)', 'isSelected': false},
-    // New configuration items (variants)
-    {'name': 'Pump Pressure Transducer', 'isSelected': false},
-    {'name': 'Glove Valve', 'isSelected': false},
-    {'name': 'Product TDS', 'isSelected': false},
-    {'name': 'Product Flow Meter', 'isSelected': false},
+    {'name': 'Pump Pressure Transducer (PT3)', 'isSelected': false},
+    {'name': 'Globe Valve', 'isSelected': false},
+    {'name': 'System Pressure Transducer (PT4)', 'isSelected': false},
+    {'name': 'Blending Needle Valve', 'isSelected': false},
+    {'name': 'Pressure Switch High', 'isSelected': false},
+    {'name': 'Product TDS (TDS2) (Included)', 'isSelected': false},
+    {'name': 'Post pH', 'isSelected': false},
+    {'name': 'Post pH low Level Switch', 'isSelected': false},
+    {'name': 'Post Chlorination Low Level Switch', 'isSelected': false},
+    {'name': 'UV Disinfection', 'isSelected': false},
+    {'name': 'Product Flow Meter (F1)', 'isSelected': false},
+    {'name': 'Product pH (pH2)', 'isSelected': false},
+    {'name': 'Interstage Pressure Transducer (PT5)', 'isSelected': false},
+    {'name': 'Recirculation Valve', 'isSelected': false},
+    {'name': 'Recirculation Flow Meter (F3)', 'isSelected': false},
+    {'name': 'Reject Pressure Transducer (PT6)', 'isSelected': false},
+    {'name': 'Flush Valve', 'isSelected': false},
     {'name': 'Reject Valve', 'isSelected': false},
-    {'name': 'Reject Flow Meter', 'isSelected': false},
+    {'name': 'Reject Flow Meter (F2)', 'isSelected': false},
+    {'name': 'Permeate Water Tank High - High Level Switch', 'isSelected': false},
+    {'name': 'Permeate Water Tank High - Medium Level Switch', 'isSelected': false},
+    {'name': 'Divert Valve', 'isSelected': false},
+    {'name': 'Permeate Water Tank Low Level Switch', 'isSelected': false},
+    {'name': 'Distribution Pump', 'isSelected': false},
+    {'name': 'Product Pressure Transducer', 'isSelected': false},
+    {'name': 'Product Pressure Switch', 'isSelected': false},
   ];
 
-  // Locked configuration items (pre-selected and non-editable)
+  // Updated locked configuration items (pre-selected and non-editable)
   final List<String> lockedItems = [
     'Feed Tank',
     'Inlet Valve (Included)',
     'Prefilter pressure Transducer (PT1)',
+    'Prefilter',
+    'Post filter pressure Transducer (PT2)',
     'Feed pH (pH1)',
-    'Feed ORP (ORP)',
     'Feed TDS (TDS1)',
     'Pressure Switch Low (Included)',
     'RO High Pressure Pump (Included)',
-    'Pump Pressure Transducer',
-    'Glove Valve',
-    'Product TDS',
-    'Product Flow Meter',
+    'Pump Pressure Transducer (PT3)',
+    'Globe Valve',
+    'Product TDS (TDS2) (Included)',
+    'Product Flow Meter (F1)',
     'Reject Valve',
-    'Reject Flow Meter',
+    'Reject Flow Meter (F2)',
   ];
 
   // List of available user roles
@@ -223,7 +243,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
                 alignment: Alignment.center,
                 child: Text(
                   'Checkbox',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -247,9 +267,9 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
                   children: [
                     // Sr.no Column
                     Container(
-                      width: 50,
+                      width: 430,
                       padding: EdgeInsets.all(8),
-                      alignment: Alignment.center,
+                    //  alignment: Alignment.,
                       child: Text(
                         '${index + 1}',
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -265,9 +285,9 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
                         ),
                       ),
                     ),
-                    // Checkbox Column
+                    // Checkbox Column (width set to 80 to match the header)
                     Container(
-                      width: 50,
+                      width: 80,
                       alignment: Alignment.center,
                       child: Checkbox(
                         value: configItems[index]['isSelected'],
@@ -318,7 +338,23 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
           },
         ),
         SizedBox(height: 20),
-        // Display filtered user roles in a list; tapping adds the role
+        // Display selected roles as chips
+        if (selectedRoles.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            children: selectedRoles.map((role) {
+              return Chip(
+                label: Text(role),
+                onDeleted: () {
+                  setState(() {
+                    selectedRoles.remove(role);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        SizedBox(height: 20),
+        // Display filtered user roles in a list; tapping adds the role if not already selected.
         Container(
           height: 400,
           child: ListView.builder(
@@ -389,9 +425,11 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
               });
             }
           },
-          icon: Icon(isLastStep ? Icons.save : Iconsax.arrow_right,
+          icon: Icon(
+              isLastStep ? Icons.save : Iconsax.arrow_right,
               color: Colors.white),
-          label: Text(isLastStep ? 'Save' : 'Next',
+          label: Text(
+              isLastStep ? 'Save' : 'Next',
               style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
