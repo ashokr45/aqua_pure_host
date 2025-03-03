@@ -195,21 +195,27 @@ class _AddPurifierPageState extends State<AddPurifierPage>
     );
   }
 
-  Widget _buildProceedButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF0267FF),
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+ Widget _buildProceedButton() {
+  return SizedBox(
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: () {
+        // Check if there is a next tab available
+        if (_tabController.index < _tabController.length - 1) {
+          _tabController.animateTo(_tabController.index + 1);
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xFF0267FF),
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Text("Proceed"),
       ),
-    );
-  }
+      child: Text("Proceed"),
+    ),
+  );
+}
+
 }

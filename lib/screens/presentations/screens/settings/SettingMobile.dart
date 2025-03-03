@@ -337,7 +337,9 @@
 //   }
 // }
 
+import 'package:aqua_pure/common/QAppBar.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class SettingMobile extends StatefulWidget {
   const SettingMobile({super.key});
@@ -631,16 +633,20 @@ class _SettingsScreenState extends State<SettingMobile> {
       ),
     );
   }
-
+ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {},
-        ),
+       key: _scaffoldKey,
+      appBar: QAppBar(
+        
+        menuIcon: Iconsax.menu_1,
+       onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        notificationIcon: Iconsax.notification,
+        userIcon: Iconsax.user,
+        title: 'Settings',
       ),
       body: SingleChildScrollView(
         child: Column(

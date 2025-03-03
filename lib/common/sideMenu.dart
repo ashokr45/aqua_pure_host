@@ -2,6 +2,8 @@ import 'package:aqua_pure/screens/presentations/screens/AlarmScreen/AlarmScreen.
 import 'package:aqua_pure/screens/presentations/screens/Dashboard/Dashboard_mobile.dart';
 import 'package:aqua_pure/screens/presentations/screens/Manual%20Control/manual_control.dart';
 import 'package:aqua_pure/screens/presentations/screens/purifier_manager/PurifyManager.dart';
+import 'package:aqua_pure/screens/presentations/screens/usermanagement/userManagement.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -9,10 +11,10 @@ import 'package:iconsax/iconsax.dart';
 import '../screens/presentations/screens/ContactScreen/Contactdesktopscreen.dart';
 import '../screens/presentations/screens/Dashboard/Dashboard.dart';
 import '../screens/presentations/screens/DataTable/Data_analysis.dart';
-import '../screens/presentations/screens/Main_Interface/main_interfaceResponsive.dart';
+
 import '../screens/presentations/screens/RealData/RealData.dart';
 import '../screens/presentations/screens/settings/General_purpose.dart';
-import '../screens/presentations/screens/usermanagement/UsermanagementDesktop.dart';
+
 import '../utils/constants/colors.dart';
 
 
@@ -84,7 +86,7 @@ class sideMenu extends StatelessWidget {
 
           ListTile(
             leading: Icon(Iconsax.setting),
-            title: Text('Settings'),
+            title: Text('Purifier Settings'),
             onTap: () {
               Get.to(() => GeneralPurpose());
             },
@@ -109,7 +111,7 @@ class sideMenu extends StatelessWidget {
             leading: Icon(Iconsax.user),
             title: Text('User Management'),
             onTap: () {
-              Get.to(() => UserManagementDesktop());
+              Get.to(() => Usermanagement());
 
             },
           ),
