@@ -29,6 +29,7 @@ dependencies:
   icons_launcher: ^3.0.0
   path_provider: ^2.0.13
   dropdown_search: ^5.0.2
+  get_storage: ^2.1.1
 
 
 

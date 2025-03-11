@@ -1,9 +1,11 @@
+import 'package:aqua_pure/common/sideMenu.dart';
+import 'package:aqua_pure/getx_controllers/purifier_controller.dart';
+import 'package:aqua_pure/screens/presentations/screens/Dashboard/Dashboard_desktop.dart';
+
+import 'package:aqua_pure/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../../../common/sideMenu.dart';
-import '../../../../utils/constants/colors.dart';
-
+import 'package:get/get.dart';
 
 class Contactdesktopscreen extends StatefulWidget {
   const Contactdesktopscreen({super.key});
@@ -13,17 +15,16 @@ class Contactdesktopscreen extends StatefulWidget {
 }
 
 class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
-  String? selectedValue;
-  final List<String> dropdownOptions = ["PURIFIER 1001", "PURIFIER 1002", "PURIFIER 1003"];
+  // Remove local state for purifier selection.
+  // Use the global controllers instead.
+  final PurifierController purifierController = Get.put(PurifierController());
+  final PurifierSelectionController purifierSelectionController =
+      Get.put(PurifierSelectionController());
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double buttonWidth = screenWidth * 0.21; // Adjust the ratio as needed
-
+    double screenWidth = MediaQuery.of(context).size.width;
+    
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80), // Custom AppBar height
@@ -48,28 +49,45 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
             ),
           ),
           actions: [
+            // Global dropdown using centralized data.
             Padding(
               padding: const EdgeInsets.only(right: 650.0, top: 30),
-              child: DropdownButton<String>(
-                value: selectedValue,
-                hint: Text(
-                  "Select Purifier",
-                  style: TextStyle(color: TColors.textBlack, fontSize: 18),
-                ),
-                items: dropdownOptions.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
+              child: Obx(() {
+                String currentPurifier = purifierSelectionController.selectedPurifierId.value;
+                if (purifierController.isLoading.value) {
+                  return const CircularProgressIndicator();
+                } else if (purifierController.filteredPurifierList.isEmpty) {
+                  return Text(
+                    "No Purifiers",
+                    style: TextStyle(color: TColors.textBlack, fontSize: 18),
                   );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                dropdownColor: TColors.textWhite,
-                style: TextStyle(color: TColors.textBlack, fontSize: 18),
-              ),
+                } else {
+                  return DropdownButton<String>(
+                    value: currentPurifier.isEmpty ? null : currentPurifier,
+                    hint: Text(
+                      "Select Purifier",
+                      style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                    ),
+                    items: purifierController.filteredPurifierList
+                        .map<DropdownMenuItem<String>>((purifier) {
+                      return DropdownMenuItem<String>(
+                        value: purifier.salesOrderNumber.toString(),
+                        child: Text(
+                          "PURIFIER ${purifier.salesOrderNumber}",
+                          style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        purifierSelectionController.updateSelection(newValue);
+                      }
+                    },
+                    dropdownColor: TColors.textWhite,
+                    style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                  );
+                }
+              }),
             ),
           ],
           backgroundColor: TColors.textWhite,
@@ -77,7 +95,7 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
         ),
       ),
       backgroundColor: TColors.button.withOpacity(0.3),
-      body: SafeArea( // Add SafeArea here to avoid overlap
+      body: SafeArea(
         child: Row(
           children: [
             Container(
@@ -86,10 +104,7 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
             ),
             Expanded(
               child: SizedBox(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
+                height: MediaQuery.of(context).size.height,
                 child: Padding(
                   padding: const EdgeInsets.all(40.0),
                   child: Container(
@@ -99,16 +114,9 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
                         Image.asset(
                           "assets/sample.png",
                           fit: BoxFit.contain,
-                          width:  MediaQuery
-                              .of(context)
-                              .size
-                              .width,
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .height,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
                         ),
-
                       ],
                     ),
                   ),
@@ -120,5 +128,4 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
       ),
     );
   }
-
 }

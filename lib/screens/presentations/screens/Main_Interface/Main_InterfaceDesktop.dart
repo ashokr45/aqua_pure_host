@@ -1,14 +1,13 @@
-import 'package:aqua_pure/screens/presentations/screens/purifier_manager/PurifyManager.dart';
-import 'package:aqua_pure/screens/presentations/screens/purifier_manager/Purify_manager.dart';
+import 'package:aqua_pure/getx_controllers/purifier_controller.dart';
+
+import 'package:aqua_pure/common/sideMenu.dart';
+import 'package:aqua_pure/models/purifier_model.dart';
+import 'package:aqua_pure/screens/presentations/screens/Dashboard/Dashboard_desktop.dart';
+import 'package:aqua_pure/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../../../common/sideMenu.dart';
-import '../../../../utils/constants/colors.dart';
-
-
-
+import 'package:iconsax/iconsax.dart';
 
 class MainInterfaceScreenDesktop extends StatefulWidget {
   const MainInterfaceScreenDesktop({super.key});
@@ -19,8 +18,12 @@ class MainInterfaceScreenDesktop extends StatefulWidget {
 }
 
 class _MainInterfaceScreenDesktopState extends State<MainInterfaceScreenDesktop> {
-  String? selectedValue = 'PURIFIER 1001' ;
-  final List<String> dropdownOptions = ["PURIFIER 1001", "PURIFIER 1002", "PURIFIER 1003"];
+  // Remove local purifier state. We now use global controllers.
+  
+  // Global controllers.
+  final PurifierController purifierController = Get.put(PurifierController());
+  final PurifierSelectionController purifierSelectionController =
+      Get.put(PurifierSelectionController());
 
   @override
   Widget build(BuildContext context) {
@@ -52,33 +55,51 @@ class _MainInterfaceScreenDesktopState extends State<MainInterfaceScreenDesktop>
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 650.0, top: 30),
-              child: DropdownButton<String>(
-                value: selectedValue,
-                hint: Text(
-                  "Select Purifier",
-                  style: TextStyle(color: TColors.textBlack, fontSize: 18),
-                ),
-                items: dropdownOptions.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
+              child: Obx(() {
+                // Get current selection from global purifier selection controller.
+                String currentSelection =
+                    purifierSelectionController.selectedPurifierId.value;
+                if (purifierController.isLoading.value) {
+                  return const CircularProgressIndicator();
+                } else if (purifierController.filteredPurifierList.isEmpty) {
+                  return Text(
+                    "No Purifiers",
+                    style: TextStyle(color: TColors.textBlack, fontSize: 18),
                   );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                dropdownColor: TColors.textWhite,
-                style: TextStyle(color: TColors.textBlack, fontSize: 18),
-              ),
+                } else {
+                  return DropdownButton<String>(
+                    value: currentSelection.isEmpty ? null : currentSelection,
+                    hint: Text(
+                      "Select Purifier",
+                      style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                    ),
+                    items: purifierController.filteredPurifierList
+                        .map<DropdownMenuItem<String>>((Purifier purifier) {
+                      return DropdownMenuItem<String>(
+                        value: purifier.salesOrderNumber.toString(),
+                        child: Text(
+                          "PURIFIER ${purifier.salesOrderNumber}",
+                          style: TextStyle(
+                              color: TColors.textBlack, fontSize: 18),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        purifierSelectionController.updateSelection(newValue);
+                      }
+                    },
+                    dropdownColor: TColors.textWhite,
+                    style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                  );
+                }
+              }),
             ),
           ],
           backgroundColor: TColors.textWhite,
           centerTitle: false,
         ),
       ),
-
       backgroundColor: TColors.button.withOpacity(0.3),
       body: SafeArea(
         child: Row(
@@ -94,38 +115,46 @@ class _MainInterfaceScreenDesktopState extends State<MainInterfaceScreenDesktop>
                   padding: const EdgeInsets.all(20.0),
                   child: Container(
                     width: double.infinity,
-                    child: Stack(
-                      children: [
-                        if (selectedValue == null)
-                          Center(
-                            child: Text(
-                              "Please select a purifier from the dropdown",
-                              style: TextStyle(fontSize: 20, color: TColors.textBlack),
-                            ),
-                          )
-                        else if (selectedValue == "PURIFIER 1001")
-                          Image.asset(
-                            "assets/HMIR.png",
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height,
-                          )
-                        else if (selectedValue == "PURIFIER 1002")
-                            Image.asset(
-                              "assets/HMIR2.png",
-                              fit: BoxFit.fill,
-                              width: double.infinity,
-                              height: MediaQuery.of(context).size.height,
-                            )
-                          else if (selectedValue == "PURIFIER 1003")
-                              Image.asset(
-                                "assets/HMIR3.png",
-                                fit: BoxFit.fill,
-                                width: double.infinity,
-                                height: MediaQuery.of(context).size.height,
-                              ),
-                      ],
-                    ),
+                    child: Obx(() {
+                      // Read the selected purifier from the global controller.
+                      String selectedValue =
+                          purifierSelectionController.selectedPurifierId.value;
+                      if (selectedValue.isEmpty) {
+                        return Center(
+                          child: Text(
+                            "Please select a purifier from the dropdown",
+                            style: TextStyle(
+                                fontSize: 20, color: TColors.textBlack),
+                          ),
+                        );
+                      } else if (selectedValue == "1001" ||
+                          selectedValue == "PURIFIER 1001") {
+                        return Image.asset(
+                          "assets/HMIR.png",
+                          fit: BoxFit.fill,
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height,
+                        );
+                      } else if (selectedValue == "1002" ||
+                          selectedValue == "PURIFIER 1002") {
+                        return Image.asset(
+                          "assets/HMIR2.png",
+                          fit: BoxFit.fill,
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height,
+                        );
+                      } else if (selectedValue == "1003" ||
+                          selectedValue == "PURIFIER 1003") {
+                        return Image.asset(
+                          "assets/HMIR3.png",
+                          fit: BoxFit.fill,
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height,
+                        );
+                      } else {
+                        return Container();
+                      }
+                    }),
                   ),
                 ),
               ),
@@ -136,15 +165,14 @@ class _MainInterfaceScreenDesktopState extends State<MainInterfaceScreenDesktop>
     );
   }
 
-  // Function to build a dynamic button widget
+  // Function to build a dynamic button widget.
   Widget buildButton(
       BuildContext context,
       double buttonWidth,
       String title,
       Color startColor,
       Color endColor,
-      VoidCallback onPressed,
-      ) {
+      VoidCallback onPressed) {
     return Container(
       height: 70,
       width: buttonWidth,
@@ -153,28 +181,28 @@ class _MainInterfaceScreenDesktopState extends State<MainInterfaceScreenDesktop>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            startColor, // Top color (dynamic)
-            endColor, // Bottom color (dynamic)
+            startColor, // Top color.
+            endColor,   // Bottom color.
           ],
         ),
-        borderRadius: BorderRadius.circular(5), // Rounded corners for gradient
+        borderRadius: BorderRadius.circular(5),
       ),
       child: OutlinedButton(
-        onPressed: onPressed, // Dynamic onPressed functionality
+        onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(width: 2.0, color: Colors.white), // White border
+          side: const BorderSide(width: 2.0, color: Colors.white),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          foregroundColor: Colors.white, // Text color
+          foregroundColor: Colors.white,
         ),
         child: Text(
-          title, // Dynamic title
+          title,
           style: const TextStyle(
               color: Colors.white,
               fontSize: 40,
-              fontWeight: FontWeight.bold), // White text color
+              fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -196,20 +224,21 @@ void showAlertDialog(BuildContext context, String title, String body) {
               style: TextStyle(color: TColors.textWhite),
             ),
             onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog.
             },
           ),
           OutlinedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: TColors.grey,
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Cancel",
-                style: TextStyle(color: TColors.textBlack),
-              )),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: TColors.grey,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: TColors.textBlack),
+            ),
+          ),
         ],
       );
     },
