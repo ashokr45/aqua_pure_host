@@ -1,3 +1,5 @@
+import 'package:aqua_pure/getx_controllers/purifier_controller.dart';
+import 'package:aqua_pure/models/purifier_model.dart';
 import 'package:flutter/material.dart';
 import 'package:aqua_pure/utils/constants/colors.dart';
 import 'package:get/get.dart';
@@ -8,6 +10,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../../../../common/QContainerSquare.dart';
 import '../../../../common/sideMenu.dart';
 
+
 class DashboardDesktop extends StatefulWidget {
   const DashboardDesktop({super.key});
 
@@ -16,15 +19,10 @@ class DashboardDesktop extends StatefulWidget {
 }
 
 class _DashboardDesktopState extends State<DashboardDesktop> {
-  // Existing Purifier Dropdown (for image/table switch)
+  // Dynamic Purifier Dropdown value (e.g., using sales order number as string)
   String? selectedValue;
-  final List<String> dropdownOptions = [
-    "PURIFIER 1001",
-    "PURIFIER 1002",
-    "PURIFIER 1003"
-  ];
 
-  // New Dropdowns for Continent, Country and City
+  // New Dropdowns for Continent, Country and City remain as-is.
   String? selectedContinent;
   final List<String> continentOptions = ['Asia', 'Europe', 'Africa', 'Americas'];
 
@@ -35,21 +33,20 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
   final List<String> cityOptions = ['Mumbai', 'Berlin', 'Cairo', 'New York'];
 
   late PurifierDataSource purifierDataSource;
-  late List<Purifier> purifierList; // Original list of purifiers
+  // This list is not used directly now because we rely on the controller
+  List<Purifier> purifierList = [];
+
+  // Instantiate the PurifierController to fetch data from the API.
+  final PurifierController purifierController = Get.put(PurifierController());
 
   @override
   void initState() {
     super.initState();
-    selectedValue = null; // Set to null to show the table by default
-    purifierList = [
-      Purifier(1, 'Purifier_1', 'City_1', 'Active', '20-11-2024', 1001),
-      Purifier(2, 'Purifier_2', 'City_2', 'Inactive', '18-11-2024', 1002),
-      Purifier(3, 'Purifier_3', 'City_3', 'Inactive', '11-11-2024', 1003),
-    ];
+    // Initially assign an empty list to the data source.
     purifierDataSource = PurifierDataSource(purifierData: purifierList);
   }
 
-  // Helper method to build dropdowns with equal spacing.
+  // Helper method to build dropdowns for filters.
   Widget _buildDropdown({
     required String hint,
     required String? value,
@@ -90,7 +87,7 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, screenSize) {
-                    // Fixed dimensions for QContainer widgets
+                    // Fixed dimensions for QContainer widgets.
                     const double containerWidth = 214;
                     const double containerHeight = 159;
                     return Column(
@@ -107,47 +104,58 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
                           centerTitle: false,
                           toolbarHeight: 90,
                           actions: [
+                            // Dynamic dropdown using API data.
                             Padding(
                               padding: const EdgeInsets.only(right: 650.0),
-                              child: DropdownButton<String>(
-                                value: selectedValue,
-                                hint: Text(
-                                  "Select Purifier",
-                                  style: TextStyle(
-                                      color: TColors.textBlack, fontSize: 18),
-                                ),
-                                items: dropdownOptions.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
+                              child: Obx(() {
+                                if (purifierController.isLoading.value) {
+                                  return const CircularProgressIndicator();
+                                } else if (purifierController.filteredPurifierList.isEmpty) {
+                                  return Text("No Purifiers", style: TextStyle(color: TColors.textBlack, fontSize: 18));
+                                } else {
+                                  return DropdownButton<String>(
+                                    value: selectedValue,
+                                    hint: Text(
+                                      "Select Purifier",
+                                      style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                                    ),
+                                    items: purifierController.filteredPurifierList.map((Purifier purifier) {
+                                      // Here, we use the salesOrderNumber as the value.
+                                      return DropdownMenuItem<String>(
+                                        value: purifier.salesOrderNumber.toString(),
+                                        child: Text(
+                                          "PURIFIER ${purifier.salesOrderNumber}",
+                                          style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedValue = newValue;
+                                      });
+                                    },
+                                    dropdownColor: TColors.textWhite,
+                                    style: TextStyle(color: TColors.textBlack, fontSize: 18),
                                   );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedValue = newValue;
-                                  });
-                                },
-                                dropdownColor: TColors.textWhite,
-                                style: TextStyle(
-                                    color: TColors.textBlack, fontSize: 18),
-                              ),
+                                }
+                              }),
                             ),
                             IconButton(
                               icon: const Icon(Iconsax.notification),
                               onPressed: () {
-                                // Add your notification functionality here
+                                // Add your notification functionality here.
                               },
                             ),
                           ],
                         ),
                         SizedBox(height: screenSize.maxHeight * 0.03),
-                        // Row of QContainers (always visible)
+                        // Row of QContainer widgets.
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             GestureDetector(
                               onTap: () {
-                                // Navigate to Purifier Manager if needed
+                                // Navigate to Purifier Manager if needed.
                               },
                               child: QContainer(
                                 titleText: "05\nPurifiers",
@@ -215,7 +223,7 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
                               child: selectedValue == null
                                   ? Column(
                                       children: [
-                                        // Dropdown filters row with equal spacing.
+                                        // Row of dropdown filters.
                                         Padding(
                                           padding: const EdgeInsets.all(16.0),
                                           child: Row(
@@ -365,55 +373,42 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
 
   Widget _buildPurifierImage() {
     String assetPath;
-    if (selectedValue == "PURIFIER 1001") {
+    if (selectedValue == "1001") {
       assetPath = "assets/HMIR.png";
-    } else if (selectedValue == "PURIFIER 1002") {
+    } else if (selectedValue == "1002") {
       assetPath = "assets/HMIR2.png";
     } else {
       assetPath = "assets/HMIR3.png";
     }
-   return Center(
-    child: Stack(
-      clipBehavior: Clip.none, // Allow children to paint outside the bounds
-      children: [
-        Container(
-          width: 1004,
-          height: 596,
-          child: Image.asset(assetPath, fit: BoxFit.contain),
-        ),
-        // Full-screen icon positioned slightly above and to the right of the image.
-        Positioned(
-          top: -20, // Moves the icon 20 pixels above the container
-          right: -30, // Moves the icon 30 pixels to the right of the container
-          child: IconButton(
-            icon: Icon(Icons.fullscreen, color: TColors.textBlack, size: 30),
-            onPressed: () {
-              // Push a full-screen view of the image.
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      FullScreenImagePage(assetPath: assetPath),
-                ),
-              );
-            },
+    return Center(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 1004,
+            height: 596,
+            child: Image.asset(assetPath, fit: BoxFit.contain),
           ),
-        ),
-      ],
-    ),
-  );
+          Positioned(
+            top: -20,
+            right: -30,
+            child: IconButton(
+              icon: Icon(Icons.fullscreen, color: TColors.textBlack, size: 30),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        FullScreenImagePage(assetPath: assetPath),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
-}
-
-class Purifier {
-  Purifier(this.id, this.name, this.Location, this.Status, this.date, this.serialno);
-
-  final int id;
-  final int serialno;
-  final String name;
-  final String Location;
-  final String Status;
-  final String date;
 }
 
 class PurifierDataSource extends DataGridSource {
@@ -421,11 +416,11 @@ class PurifierDataSource extends DataGridSource {
     _purifierData = purifierData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<int>(columnName: 'serialno', value: e.serialno),
+              DataGridCell<int>(columnName: 'serialno', value: e.salesOrderNumber),
               DataGridCell<String>(columnName: 'name', value: e.name),
-              DataGridCell<String>(columnName: 'date', value: e.date),
-              DataGridCell<String>(columnName: 'Location', value: e.Location),
-              DataGridCell<String>(columnName: 'Status', value: e.Status),
+              DataGridCell<String>(columnName: 'date', value: e.manufactureDate),
+              DataGridCell<String>(columnName: 'Location', value: e.location),
+              DataGridCell<String>(columnName: 'Status', value: e.status),
             ]))
         .toList();
   }

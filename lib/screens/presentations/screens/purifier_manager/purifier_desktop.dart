@@ -1,97 +1,32 @@
+import 'package:aqua_pure/common/sideMenu.dart';
+import 'package:aqua_pure/getx_controllers/purifier_controller.dart';
+import 'package:aqua_pure/screens/presentations/screens/AddPurifier/AddPurifierDesktop.dart';
+import 'package:aqua_pure/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../common/sideMenu.dart';
-import '../../../../utils/constants/colors.dart';
-import '../AddPurifier/AddPurifierDesktop.dart';
+import '../../../../models/purifier_model.dart';
+
+
 
 class PurifierDesktop extends StatefulWidget {
-  const PurifierDesktop({super.key});
+  const PurifierDesktop({Key? key}) : super(key: key);
 
   @override
   _PurifierDesktopState createState() => _PurifierDesktopState();
 }
 
 class _PurifierDesktopState extends State<PurifierDesktop> {
+  final PurifierController purifierController = Get.put(PurifierController());
   late PurifierDataSource purifierDataSource;
-  late List<Purifier> purifierList; // Original list of purifiers
-  late List<Purifier> filteredPurifierList; // Filtered list of purifiers
   final TextEditingController searchController = TextEditingController();
 
-  // Sorting state variables
+  // Local sorting state variables for UI icon updates.
   String? _sortColumn;
   DataGridSortDirection _sortDirection = DataGridSortDirection.ascending;
-
-  @override
-  void initState() {
-    super.initState();
-    purifierList = [
-      Purifier(1, 'Purifier_1', 'City_1', 'Active', '20-11-2024', 1001),
-      Purifier(2, 'Purifier_2', 'City_2', 'Inactive', '18-11-2024', 1002),
-      Purifier(3, 'Purifier_3', 'City_3', 'Inactive', '11-11-2024', 1003),
-    ];
-    filteredPurifierList = List.from(purifierList);
-    purifierDataSource = PurifierDataSource(
-      purifierData: filteredPurifierList,
-      sortColumn: _sortColumn,
-      sortDirection: _sortDirection,
-    );
-  }
-
-  void filterPurifiers(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        filteredPurifierList = List.from(purifierList);
-      } else {
-        filteredPurifierList = purifierList
-            .where((purifier) =>
-                purifier.name.toLowerCase().contains(query.toLowerCase()) ||
-                purifier.Location.toLowerCase().contains(query.toLowerCase()) ||
-                purifier.serialno.toString().contains(query) ||
-                purifier.date.contains(query))
-            .toList();
-      }
-      purifierDataSource = PurifierDataSource(
-        purifierData: filteredPurifierList,
-        sortColumn: _sortColumn,
-        sortDirection: _sortDirection,
-      );
-    });
-  }
-
-  void _handleSort(String columnName) {
-    setState(() {
-      if (_sortColumn == columnName) {
-        _sortDirection = _sortDirection == DataGridSortDirection.ascending
-            ? DataGridSortDirection.descending
-            : DataGridSortDirection.ascending;
-      } else {
-        _sortColumn = columnName;
-        _sortDirection = DataGridSortDirection.ascending;
-      }
-      purifierDataSource = PurifierDataSource(
-        purifierData: filteredPurifierList,
-        sortColumn: _sortColumn,
-        sortDirection: _sortDirection,
-      );
-    });
-  }
-
-  Widget _buildSortIcon(String columnName) {
-    if (_sortColumn == columnName) {
-      return Icon(
-        _sortDirection == DataGridSortDirection.ascending
-            ? Icons.arrow_upward
-            : Icons.arrow_downward,
-        color: Colors.white,
-        size: 16,
-      );
-    }
-    return const Icon(Icons.sort, color: Colors.white, size: 16);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +35,7 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
       body: Row(
         children: [
           // Side Menu
-          Container(
+          SizedBox(
             width: 250,
             child: sideMenu(),
           ),
@@ -139,7 +74,9 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
                         height: 50,
                         child: TextField(
                           controller: searchController,
-                          onChanged: filterPurifiers,
+                          onChanged: (value) {
+                            purifierController.filterPurifiers(value);
+                          },
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -177,154 +114,183 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
                 ),
                 // DataGrid Table
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SfDataGrid(
-                      source: purifierDataSource,
-                      columnWidthMode: ColumnWidthMode.fill,
-                      columns: <GridColumn>[
-                        GridColumn(
-                          columnName: 'id',
-                          label: Container(
-                            padding: const EdgeInsets.all(16.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: InkWell(
-                              onTap: () => _handleSort('id'),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'SO.No.',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  _buildSortIcon('id'),
-                                ],
+                  child: Obx(() {
+                    if (purifierController.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    // Update data source with the filtered list from the controller.
+                    purifierDataSource = PurifierDataSource(
+                      purifierData: purifierController.filteredPurifierList,
+                      sortColumn: _sortColumn,
+                      sortDirection: _sortDirection,
+                    );
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SfDataGrid(
+                        source: purifierDataSource,
+                        columnWidthMode: ColumnWidthMode.fill,
+                        columns: <GridColumn>[
+                          GridColumn(
+                            columnName: 'id',
+                            label: Container(
+                              padding: const EdgeInsets.all(16.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('id');
+                                  purifierController.sortPurifiers('id');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'SO.No.',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('id'),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GridColumn(
-                          columnName: 'serialno',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: InkWell(
-                              onTap: () => _handleSort('serialno'),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'Serial Number',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  _buildSortIcon('serialno'),
-                                ],
+                          GridColumn(
+                            columnName: 'serialno',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('serialno');
+                                  purifierController.sortPurifiers('serialno');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Serial Number',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('serialno'),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GridColumn(
-                          columnName: 'name',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: InkWell(
-                              onTap: () => _handleSort('name'),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'Purifier Name',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  _buildSortIcon('name'),
-                                ],
+                          GridColumn(
+                            columnName: 'name',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('name');
+                                  purifierController.sortPurifiers('name');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Purifier Name',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('name'),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GridColumn(
-                          columnName: 'date',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: InkWell(
-                              onTap: () => _handleSort('date'),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'MFR. Date',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  _buildSortIcon('date'),
-                                ],
+                          GridColumn(
+                            columnName: 'manufactureDate',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('manufactureDate');
+                                  purifierController.sortPurifiers('manufactureDate');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'MFR. Date',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('manufactureDate'),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GridColumn(
-                          columnName: 'Location',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: InkWell(
-                              onTap: () => _handleSort('Location'),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'Location',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  _buildSortIcon('Location'),
-                                ],
+                          GridColumn(
+                            columnName: 'location',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('location');
+                                  purifierController.sortPurifiers('location');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Location',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('location'),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GridColumn(
-                          columnName: 'Status',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: InkWell(
-                              onTap: () => _handleSort('Status'),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'Status',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  _buildSortIcon('Status'),
-                                ],
+                          GridColumn(
+                            columnName: 'status',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('status');
+                                  purifierController.sortPurifiers('status');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Status',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('status'),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GridColumn(
-                          columnName: 'Action',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            color: TColors.button,
-                            child: const Text(
-                              'Action',
-                              style: TextStyle(color: Colors.white),
+                          GridColumn(
+                            columnName: 'Action',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: const Text(
+                                'Action',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -333,76 +299,92 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
       ),
     );
   }
-}
 
-class Purifier {
-  Purifier(this.id, this.name, this.Location, this.Status, this.date, this.serialno);
+  void _handleSort(String columnName) {
+    setState(() {
+      if (_sortColumn == columnName) {
+        _sortDirection = _sortDirection == DataGridSortDirection.ascending
+            ? DataGridSortDirection.descending
+            : DataGridSortDirection.ascending;
+      } else {
+        _sortColumn = columnName;
+        _sortDirection = DataGridSortDirection.ascending;
+      }
+    });
+  }
 
-  final int id;
-  final int serialno;
-  final String name;
-  final String Location;
-  final String Status;
-  final String date;
+  Widget _buildSortIcon(String columnName) {
+    if (_sortColumn == columnName) {
+      return Icon(
+        _sortDirection == DataGridSortDirection.ascending
+            ? Icons.arrow_upward
+            : Icons.arrow_downward,
+        color: Colors.white,
+        size: 16,
+      );
+    }
+    return const Icon(Icons.sort, color: Colors.white, size: 16);
+  }
 }
 
 class PurifierDataSource extends DataGridSource {
-  late List<Purifier> _originalPurifierData;
-  List<DataGridRow> _purifierData = [];
+  late List<Purifier> _purifierData;
 
   PurifierDataSource({
     required List<Purifier> purifierData,
     String? sortColumn,
     DataGridSortDirection sortDirection = DataGridSortDirection.ascending,
   }) {
-    _originalPurifierData = purifierData;
-    List<Purifier> sorted =
-        _sortPurifiers(purifierData, sortColumn, sortDirection);
-    _purifierData = sorted
-        .map<DataGridRow>(
-          (e) => DataGridRow(cells: [
-            DataGridCell<int>(columnName: 'id', value: e.id),
-            DataGridCell<int>(columnName: 'serialno', value: e.serialno),
-            DataGridCell<String>(columnName: 'name', value: e.name),
-            DataGridCell<String>(columnName: 'date', value: e.date),
-            DataGridCell<String>(columnName: 'Location', value: e.Location),
-            DataGridCell<String>(columnName: 'Status', value: e.Status),
-            DataGridCell<Widget>(
-              columnName: 'Action',
-              value: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Iconsax.edit, color: Colors.green),
-                    onPressed: () {
-                      print('Edit button clicked for ${e.name}');
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.trash, color: Colors.red),
-                    onPressed: () {
-                      print('Delete button clicked for ${e.name}');
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ]),
-        )
-        .toList();
+    _purifierData = purifierData;
+    // Since sorting is handled in the controller, we only map the data here.
+    buildDataGridRows();
   }
 
-  List<Purifier> get purifierList => _originalPurifierData;
+  List<DataGridRow> _dataGridRows = [];
+
+  void buildDataGridRows() {
+    _dataGridRows = _purifierData.map<DataGridRow>((e) {
+      return DataGridRow(cells: [
+        DataGridCell<int>(columnName: 'id', value: e.id),
+        DataGridCell<int>(columnName: 'serialno', value: e.serialno),
+        DataGridCell<String>(columnName: 'name', value: e.name),
+        DataGridCell<String>(
+            columnName: 'manufactureDate', value: e.manufactureDate),
+        DataGridCell<String>(columnName: 'location', value: e.location),
+        DataGridCell<String>(columnName: 'status', value: e.status),
+        DataGridCell<Widget>(
+          columnName: 'Action',
+          value: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Iconsax.edit, color: Colors.green),
+                onPressed: () {
+                  print('Edit button clicked for ${e.name}');
+                },
+              ),
+              IconButton(
+                icon: const Icon(Iconsax.trash, color: Colors.red),
+                onPressed: () {
+                  print('Delete button clicked for ${e.name}');
+                },
+              ),
+            ],
+          ),
+        ),
+      ]);
+    }).toList();
+  }
 
   @override
-  List<DataGridRow> get rows => _purifierData;
+  List<DataGridRow> get rows => _dataGridRows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((e) {
-        if (e.columnName == 'Status') {
-          final status = e.value.toString();
+      cells: row.getCells().map<Widget>((dataCell) {
+        if (dataCell.columnName == 'status') {
+          final status = dataCell.value.toString();
           final bgColor = status.toLowerCase() == 'active'
               ? const Color.fromARGB(255, 170, 216, 116)
               : const Color.fromARGB(255, 222, 113, 105);
@@ -423,12 +405,12 @@ class PurifierDataSource extends DataGridSource {
               ),
             ),
           );
-        } else if (e.columnName == 'Action') {
+        } else if (dataCell.columnName == 'Action') {
           return Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(8.0),
             color: Colors.white,
-            child: e.value as Widget,
+            child: dataCell.value as Widget,
           );
         } else {
           return Container(
@@ -436,60 +418,12 @@ class PurifierDataSource extends DataGridSource {
             padding: const EdgeInsets.all(8.0),
             color: Colors.white,
             child: Text(
-              e.value.toString(),
+              dataCell.value.toString(),
               style: TextStyle(color: TColors.textBlack),
             ),
           );
         }
       }).toList(),
     );
-  }
-
-  List<Purifier> _sortPurifiers(
-      List<Purifier> purifiers, String? sortColumn, DataGridSortDirection sortDirection) {
-    if (sortColumn == null) return purifiers;
-    List<Purifier> sorted = List.from(purifiers);
-    sorted.sort((a, b) {
-      dynamic aValue;
-      dynamic bValue;
-      switch (sortColumn) {
-        case 'id':
-          aValue = a.id;
-          bValue = b.id;
-          break;
-        case 'serialno':
-          aValue = a.serialno;
-          bValue = b.serialno;
-          break;
-        case 'name':
-          aValue = a.name;
-          bValue = b.name;
-          break;
-        case 'date':
-          aValue = a.date;
-          bValue = b.date;
-          break;
-        case 'Location':
-          aValue = a.Location;
-          bValue = b.Location;
-          break;
-        case 'Status':
-          aValue = a.Status;
-          bValue = b.Status;
-          break;
-        default:
-          return 0;
-      }
-      int compareResult;
-      if (aValue is int && bValue is int) {
-        compareResult = aValue.compareTo(bValue);
-      } else {
-        compareResult = aValue.toString().compareTo(bValue.toString());
-      }
-      return sortDirection == DataGridSortDirection.ascending
-          ? compareResult
-          : -compareResult;
-    });
-    return sorted;
   }
 }
