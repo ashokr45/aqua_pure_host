@@ -1,5 +1,8 @@
+import 'package:aqua_pure/apis/purifier_apis.dart';
 import 'package:aqua_pure/common/sideMenu.dart';
+import 'package:aqua_pure/screens/presentations/screens/purifier_manager/PurifyManager.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -17,7 +20,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
   final TextEditingController manufactureDateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
-  // Updated configuration items list with all 46 entries from the image
+  // Configuration items list
   List<Map<String, dynamic>> configItems = [
     {'name': 'Feed Tank', 'isSelected': false},
     {'name': 'Raw Water Tank Low Level Switch', 'isSelected': false},
@@ -67,7 +70,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
     {'name': 'Product Pressure Switch', 'isSelected': false},
   ];
 
-  // Updated locked configuration items (pre-selected and non-editable)
+  // Locked configuration items (pre-selected and non-editable)
   final List<String> lockedItems = [
     'Feed Tank',
     'Inlet Valve (Included)',
@@ -269,7 +272,6 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
                     Container(
                       width: 430,
                       padding: EdgeInsets.all(8),
-                    //  alignment: Alignment.,
                       child: Text(
                         '${index + 1}',
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -285,7 +287,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
                         ),
                       ),
                     ),
-                    // Checkbox Column (width set to 80 to match the header)
+                    // Checkbox Column
                     Container(
                       width: 80,
                       alignment: Alignment.center,
@@ -354,23 +356,25 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
             }).toList(),
           ),
         SizedBox(height: 20),
-        // Display filtered user roles in a list; tapping adds the role if not already selected.
+        // Wrap the user roles ListView with a Scrollbar
         Container(
           height: 400,
-          child: ListView.builder(
-            itemCount: filteredUserRoles.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(filteredUserRoles[index]),
-                onTap: () {
-                  setState(() {
-                    if (!selectedRoles.contains(filteredUserRoles[index])) {
-                      selectedRoles.add(filteredUserRoles[index]);
-                    }
-                  });
-                },
-              );
-            },
+          child: Scrollbar(
+            child: ListView.builder(
+              itemCount: filteredUserRoles.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(filteredUserRoles[index]),
+                  onTap: () {
+                    setState(() {
+                      if (!selectedRoles.contains(filteredUserRoles[index])) {
+                        selectedRoles.add(filteredUserRoles[index]);
+                      }
+                    });
+                  },
+                );
+              },
+            ),
           ),
         ),
         SizedBox(height: 20),
@@ -415,10 +419,9 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
           ),
         SizedBox(width: 16),
         ElevatedButton.icon(
-          onPressed: () {
+          onPressed: () async {
             if (isLastStep) {
-              // Handle form submission
-              print('Form submitted');
+              await _submitForm();
             } else {
               setState(() {
                 currentStep++;
@@ -438,6 +441,45 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
         ),
       ],
     );
+  }
+
+  // This function validates the fields, constructs the data payload, and calls the API.
+  Future<void> _submitForm() async {
+    if (serialNumberController.text.isEmpty ||
+        salesOrderController.text.isEmpty ||
+        manufactureDateController.text.isEmpty ||
+        locationController.text.isEmpty) {
+      Get.snackbar("Error", "Please fill all required fields.");
+      return;
+    }
+
+    // Construct purifier data with necessary null handling
+    Map<String, dynamic> purifierData = {
+      "serial_number": serialNumberController.text.trim(),
+      "sales_order_number": salesOrderController.text.trim(),
+      // Example: using the serial number to generate a purifier name. Adjust as needed.
+      "purifier_name": "Purifier ${serialNumberController.text.trim()}",
+      "manufacture_date": manufactureDateController.text.trim(),
+      "location": locationController.text.trim(),
+      "status": "active",
+      // Assuming user id is 1 (or map selected role to user id as needed)
+      "user": 1,
+      // Optionally send configurations and roles if required by your API
+      "configurations": configItems
+          .where((item) => item['isSelected'] == true)
+          .map((item) => item['name'])
+          .toList(),
+      "roles": selectedRoles,
+    };
+
+    try {
+      await PurifierApi.addPurifier(purifierData);
+      Get.snackbar("Success", "Purifier added successfully.");
+      // Navigate to the purifier page; adjust the route name as per your app's routing.
+   await  Get.to(() => purifyManager());
+    } catch (e) {
+      Get.snackbar("Error", "Failed to add purifier: ${e.toString()}");
+    }
   }
 
   @override
