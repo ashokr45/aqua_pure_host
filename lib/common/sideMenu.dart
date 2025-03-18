@@ -2,6 +2,7 @@ import 'package:aqua_pure/screens/presentations/screens/AlarmScreen/AlarmScreen.
 import 'package:aqua_pure/screens/presentations/screens/Dashboard/Dashboard_mobile.dart';
 import 'package:aqua_pure/screens/presentations/screens/Manual%20Control/manual_control.dart';
 import 'package:aqua_pure/screens/presentations/screens/purifier_manager/PurifyManager.dart';
+import 'package:aqua_pure/screens/presentations/screens/settings/geneal_setting_desktop.dart';
 import 'package:aqua_pure/screens/presentations/screens/usermanagement/userManagement.dart';
 
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ class sideMenu extends StatelessWidget {
             leading: Icon(Iconsax.setting),
             title: Text('General Settings'),
             onTap: () {
-              Get.to(() => GeneralPurpose());
+              Get.to(() => GeneralSettingsPage());
             },
           ),
 
