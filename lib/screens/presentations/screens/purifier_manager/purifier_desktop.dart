@@ -10,8 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../models/purifier_model.dart';
 
-
-
 class PurifierDesktop extends StatefulWidget {
   const PurifierDesktop({Key? key}) : super(key: key);
 
@@ -173,6 +171,31 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     _buildSortIcon('serialno'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          // New Column: Sales Model Number
+                          GridColumn(
+                            columnName: 'systemModelNumber',
+                            label: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              color: TColors.button,
+                              child: InkWell(
+                                onTap: () {
+                                  _handleSort('systemModelNumber');
+                                  purifierController.sortPurifiers('systemModelNumber');
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Sales Model Number',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    _buildSortIcon('systemModelNumber'),
                                   ],
                                 ),
                               ),
@@ -347,6 +370,9 @@ class PurifierDataSource extends DataGridSource {
       return DataGridRow(cells: [
         DataGridCell<int>(columnName: 'id', value: e.id),
         DataGridCell<int>(columnName: 'serialno', value: e.serialno),
+        // New cell for Sales Model Number (systemModelNumber)
+        DataGridCell<String>(
+            columnName: 'systemModelNumber', value: e.systemModelNumber),
         DataGridCell<String>(columnName: 'name', value: e.name),
         DataGridCell<String>(
             columnName: 'manufactureDate', value: e.manufactureDate),

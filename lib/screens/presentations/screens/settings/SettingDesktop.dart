@@ -1,6 +1,12 @@
 import 'package:aqua_pure/common/sideMenu.dart';
+import 'package:aqua_pure/getx_controllers/purifier_controller.dart';
+import 'package:aqua_pure/models/purifier_model.dart';
+import 'package:aqua_pure/screens/presentations/screens/Dashboard/Dashboard_desktop.dart';
+import 'package:aqua_pure/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 
 class SettingDesktop extends StatefulWidget {
   const SettingDesktop({super.key});
@@ -8,6 +14,10 @@ class SettingDesktop extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
+
+final PurifierController purifierController = Get.put(PurifierController());
+  final PurifierSelectionController purifierSelectionController =
+      Get.put(PurifierSelectionController());
 
 class _SettingsPageState extends State<SettingDesktop> {
   String selectedMainMenu = 'INSTRUMENTS';
@@ -364,28 +374,54 @@ class _SettingsPageState extends State<SettingDesktop> {
           style: TextStyle(color: Colors.black, fontSize: 24),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: DropdownButton<String>(
-              value: selectedPurifier,
-              items: ['PURIFIER 1001', 'PURIFIER 1002', 'PURIFIER 1003']
-                  .map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    selectedPurifier = newValue;
-                  });
-                }
-              },
-              underline: const SizedBox(),
-              style: const TextStyle(color: Colors.black, fontSize: 16),
-            ),
-          ),
+             Padding(
+                padding: const EdgeInsets.only(right: 20.0),
+                child: Obx(() {
+                  // Get the current selection from the global controller.
+                  String currentPurifier =
+                      purifierSelectionController.selectedPurifierId.value;
+                  if (purifierController.isLoading.value) {
+                    return const CircularProgressIndicator();
+                  } else if (purifierController.filteredPurifierList.isEmpty) {
+                    return Text(
+                      "No Purifiers",
+                      style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                    );
+                  } else {
+                    return DropdownButton<String>(
+                      value: currentPurifier.isEmpty ? null : currentPurifier,
+                      hint: Text(
+                        "Select Purifier",
+                        style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                      ),
+                      items: purifierController.filteredPurifierList
+                          .map<DropdownMenuItem<String>>((Purifier purifier) {
+                        return DropdownMenuItem<String>(
+                          value: purifier.id.toString(),
+                          child: Text(
+                            "${purifier.name} ${purifier.location}",
+                            style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          purifierSelectionController.updateSelection(newValue);
+                        }
+                      },
+                      dropdownColor: TColors.textWhite,
+                      style: TextStyle(color: TColors.textBlack, fontSize: 18),
+                      underline: const SizedBox(),
+                    );
+                  }
+                }),
+              ),
+              IconButton(
+                icon: const Icon(Iconsax.notification),
+                onPressed: () {
+                  // Add notification functionality here.
+                },
+              ),
           const CircleAvatar(
             backgroundColor: Colors.blue,
             child: Icon(Icons.notifications, color: Colors.white),

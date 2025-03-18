@@ -17,6 +17,8 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
   int currentStep = 0;
   final TextEditingController serialNumberController = TextEditingController();
   final TextEditingController salesOrderController = TextEditingController();
+  // New controller for System Model Number
+  final TextEditingController systemModelNumberController = TextEditingController();
   final TextEditingController manufactureDateController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
@@ -188,6 +190,12 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
         _buildTextField(
           controller: salesOrderController,
           label: "Sales Order Number",
+        ),
+        SizedBox(height: 20),
+        // New field: System Model Number
+        _buildTextField(
+          controller: systemModelNumberController,
+          label: "System Model Number",
         ),
         SizedBox(height: 20),
         _buildTextField(
@@ -447,6 +455,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
   Future<void> _submitForm() async {
     if (serialNumberController.text.isEmpty ||
         salesOrderController.text.isEmpty ||
+        systemModelNumberController.text.isEmpty || // Validate new field
         manufactureDateController.text.isEmpty ||
         locationController.text.isEmpty) {
       Get.snackbar("Error", "Please fill all required fields.");
@@ -457,6 +466,8 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
     Map<String, dynamic> purifierData = {
       "serial_number": serialNumberController.text.trim(),
       "sales_order_number": salesOrderController.text.trim(),
+      // New field: system_model_number is added here
+      "system_model_number": systemModelNumberController.text.trim(),
       // Example: using the serial number to generate a purifier name. Adjust as needed.
       "purifier_name": "Purifier ${serialNumberController.text.trim()}",
       "manufacture_date": manufactureDateController.text.trim(),
@@ -476,7 +487,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
       await PurifierApi.addPurifier(purifierData);
       Get.snackbar("Success", "Purifier added successfully.");
       // Navigate to the purifier page; adjust the route name as per your app's routing.
-   await  Get.to(() => purifyManager());
+      await Get.to(() => purifyManager());
     } catch (e) {
       Get.snackbar("Error", "Failed to add purifier: ${e.toString()}");
     }

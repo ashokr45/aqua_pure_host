@@ -71,9 +71,9 @@ class _ContactdesktopscreenState extends State<Contactdesktopscreen> {
                     items: purifierController.filteredPurifierList
                         .map<DropdownMenuItem<String>>((purifier) {
                       return DropdownMenuItem<String>(
-                        value: purifier.salesOrderNumber.toString(),
+                        value: purifier.id.toString(),
                         child: Text(
-                          "PURIFIER ${purifier.salesOrderNumber}",
+                          "${purifier.name} ${purifier.location}",
                           style: TextStyle(color: TColors.textBlack, fontSize: 18),
                         ),
                       );

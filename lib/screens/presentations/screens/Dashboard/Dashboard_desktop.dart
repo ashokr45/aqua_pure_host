@@ -134,8 +134,8 @@ class _DashboardDesktopState extends State<DashboardDesktop> {
                                     hint: Text("Select Purifier", style: TextStyle(color: Colors.black, fontSize: 18)),
                                     items: purifierController.filteredPurifierList.map((Purifier purifier) {
                                       return DropdownMenuItem<String>(
-                                        value: purifier.salesOrderNumber.toString(),
-                                        child: Text("PURIFIER ${purifier.salesOrderNumber}",
+                                        value: purifier.id.toString(),
+                                        child: Text("${purifier.name} ${purifier.location}",
                                             style: TextStyle(color: Colors.black, fontSize: 18)),
                                       );
                                     }).toList(),

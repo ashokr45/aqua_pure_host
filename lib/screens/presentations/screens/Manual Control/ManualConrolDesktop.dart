@@ -71,9 +71,9 @@ class _ManualControlDesktopState extends State<ManualControlDesktop> {
                             items: purifierController.filteredPurifierList
                                 .map<DropdownMenuItem<String>>((Purifier purifier) {
                               return DropdownMenuItem<String>(
-                                value: purifier.salesOrderNumber.toString(),
+                                value: purifier.id.toString(),
                                 child: Text(
-                                  "PURIFIER ${purifier.salesOrderNumber}",
+                                  "${purifier.name} ${purifier.location}",
                                   style: TextStyle(color: TColors.textBlack, fontSize: 18),
                                 ),
                               );

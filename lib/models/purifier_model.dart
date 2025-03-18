@@ -7,6 +7,7 @@ class Purifier {
   final String manufactureDate;
   final int salesOrderNumber;
   final int user;
+  final String systemModelNumber; // New field for Sales Model Number
 
   Purifier({
     required this.id,
@@ -17,6 +18,7 @@ class Purifier {
     required this.manufactureDate,
     required this.salesOrderNumber,
     required this.user,
+    required this.systemModelNumber,
   });
 
   factory Purifier.fromJson(Map<String, dynamic> json) {
@@ -27,8 +29,10 @@ class Purifier {
       location: json['location'],
       status: json['status'],
       manufactureDate: json['manufacture_date'],
-      salesOrderNumber: int.tryParse(json['sales_order_number'].toString()) ?? 0,
+      salesOrderNumber:
+          int.tryParse(json['sales_order_number'].toString()) ?? 0,
       user: json['user'],
+      systemModelNumber: json['system_model_number'] ?? "",
     );
   }
 }
