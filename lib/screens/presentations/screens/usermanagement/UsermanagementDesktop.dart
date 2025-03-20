@@ -111,7 +111,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                             );
                           },
                           icon: Icon(Icons.add, color: Colors.white),
-                          label: Text('Add User', style: TextStyle(color: Colors.white)),
+                          label: Text('Add User',
+                              style: TextStyle(color: Colors.white)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             shape: RoundedRectangleBorder(
@@ -146,7 +147,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                               padding: EdgeInsets.all(16.0),
                               alignment: Alignment.center,
                               color: TColors.button,
-                              child: Text('ID', style: TextStyle(color: Colors.white)),
+                              child: Text('ID',
+                                  style: TextStyle(color: Colors.white)),
                             ),
                           ),
                           GridColumn(
@@ -162,7 +164,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Name', style: TextStyle(color: Colors.white)),
+                                    Text('Name',
+                                        style: TextStyle(color: Colors.white)),
                                     _buildSortIcon('name'),
                                   ],
                                 ),
@@ -182,7 +185,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Username', style: TextStyle(color: Colors.white)),
+                                    Text('Username',
+                                        style: TextStyle(color: Colors.white)),
                                     _buildSortIcon('username'),
                                   ],
                                 ),
@@ -202,7 +206,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Role', style: TextStyle(color: Colors.white)),
+                                    Text('Role',
+                                        style: TextStyle(color: Colors.white)),
                                     _buildSortIcon('role'),
                                   ],
                                 ),
@@ -222,7 +227,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('No. of Systems', style: TextStyle(color: Colors.white)),
+                                    Text('No. of Systems',
+                                        style: TextStyle(color: Colors.white)),
                                     _buildSortIcon('numberOfSystems'),
                                   ],
                                 ),
@@ -242,7 +248,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Location', style: TextStyle(color: Colors.white)),
+                                    Text('Location',
+                                        style: TextStyle(color: Colors.white)),
                                     _buildSortIcon('location'),
                                   ],
                                 ),
@@ -262,7 +269,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Status', style: TextStyle(color: Colors.white)),
+                                    Text('Status',
+                                        style: TextStyle(color: Colors.white)),
                                     _buildSortIcon('status'),
                                   ],
                                 ),
@@ -275,7 +283,8 @@ class _UserManagementDesktopState extends State<UserManagementDesktop> {
                               padding: EdgeInsets.all(8.0),
                               alignment: Alignment.center,
                               color: TColors.button,
-                              child: Text('Action', style: TextStyle(color: Colors.white)),
+                              child: Text('Action',
+                                  style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         ],
@@ -305,37 +314,65 @@ class UserDataSource extends DataGridSource {
     this.sortDirection = DataGridSortDirection.ascending,
   }) {
     final sortedUsers = _sortUsers(users, sortColumn, sortDirection);
-    _userData = sortedUsers
-        .map<DataGridRow>((user) => DataGridRow(cells: [
-              DataGridCell<int>(columnName: 'id', value: user.id),
-              DataGridCell<String>(columnName: 'name', value: user.name),
-              DataGridCell<String>(columnName: 'username', value: user.username),
-              DataGridCell<String>(columnName: 'role', value: user.role),
-              DataGridCell<int>(columnName: 'numberOfSystems', value: user.numberOfSystems),
-              DataGridCell<String>(columnName: 'location', value: user.location),
-              DataGridCell<String>(columnName: 'status', value: user.status),
-              DataGridCell<Widget>(
-                columnName: 'action',
-                value: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.green),
-                      onPressed: () {
-                        // Implement edit functionality if needed.
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        // Implement delete functionality if needed.
-                      },
-                    ),
-                  ],
-                ),
+    _userData = sortedUsers.map<DataGridRow>((user) {
+      return DataGridRow(cells: [
+        DataGridCell<int>(columnName: 'id', value: user.id),
+        DataGridCell<String>(columnName: 'name', value: user.name),
+        DataGridCell<String>(columnName: 'username', value: user.username),
+        DataGridCell<String>(columnName: 'role', value: user.role),
+        DataGridCell<int>(
+            columnName: 'numberOfSystems', value: user.numberOfSystems),
+        DataGridCell<String>(columnName: 'location', value: user.location),
+        DataGridCell<String>(columnName: 'status', value: user.status),
+        DataGridCell<Widget>(
+          columnName: 'action',
+          value: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Update button
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.green),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => UpdateUserDialog(user: user),
+                  );
+                },
               ),
-            ]))
-        .toList();
+              // Delete button
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Delete User'),
+                        content: Text(
+                            'Are you sure you want to delete ${user.username}?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.find<UserController>().deleteUser(user.email);
+                              Navigator.pop(context);
+                            },
+                            child: Text('Delete'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ]);
+    }).toList();
   }
 
   List<UserModel> _sortUsers(
@@ -381,7 +418,9 @@ class UserDataSource extends DataGridSource {
       } else {
         compareResult = 0;
       }
-      return sortDirection == DataGridSortDirection.ascending ? compareResult : -compareResult;
+      return sortDirection == DataGridSortDirection.ascending
+          ? compareResult
+          : -compareResult;
     });
     return sorted;
   }
@@ -423,13 +462,10 @@ class _AddUserDialogState extends State<AddUserDialog> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
-  
-  // Remove text controllers for numberOfSystems and status.
-  // Instead, we use selected values.
+
   int selectedNumberOfSystems = 0;
   String selectedStatus = "active";
 
-  // Define the list of role options.
   final List<String> roleOptions = [
     "Pure aqua engineer",
     "dealer",
@@ -438,7 +474,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
     "operator"
   ];
 
-  // Declare selectedRole as a member variable so it persists.
   String? selectedRole;
 
   final UserController userController = Get.find<UserController>();
@@ -457,7 +492,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
             spacing: 20,
             runSpacing: 20,
             children: [
-              // Username
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -468,7 +502,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
-              // Name
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -479,7 +512,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
-              // Email
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -490,7 +522,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
-              // Contact Number
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -501,7 +532,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
-              // Password
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -513,7 +543,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   obscureText: true,
                 ),
               ),
-              // Number of Systems Dropdown (0 to 9)
               SizedBox(
                 width: 280,
                 child: DropdownButtonFormField<int>(
@@ -535,7 +564,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   },
                 ),
               ),
-              // Location
               SizedBox(
                 width: 280,
                 child: TextField(
@@ -546,7 +574,6 @@ class _AddUserDialogState extends State<AddUserDialog> {
                   ),
                 ),
               ),
-              // Role Dropdown
               SizedBox(
                 width: 280,
                 child: DropdownButtonFormField<String>(
@@ -565,11 +592,9 @@ class _AddUserDialogState extends State<AddUserDialog> {
                     setState(() {
                       selectedRole = newValue;
                     });
-                    print(selectedRole);
                   },
                 ),
               ),
-              // Status Radio Buttons (Active/Inactive)
               Container(
                 width: 280,
                 padding: EdgeInsets.all(8),
@@ -623,7 +648,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
         ElevatedButton(
           onPressed: () {
             final newUser = UserModel(
-              id: 0, // The backend should assign an ID
+              id: 0,
               username: usernameController.text,
               name: nameController.text,
               email: emailController.text,
@@ -637,6 +662,241 @@ class _AddUserDialogState extends State<AddUserDialog> {
             userController.addUser(newUser);
           },
           child: Text("Add", style: TextStyle(color: Colors.white)),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+        ),
+      ],
+    );
+  }
+}
+
+class UpdateUserDialog extends StatefulWidget {
+  final UserModel user;
+  const UpdateUserDialog({Key? key, required this.user}) : super(key: key);
+
+  @override
+  _UpdateUserDialogState createState() => _UpdateUserDialogState();
+}
+
+class _UpdateUserDialogState extends State<UpdateUserDialog> {
+  late TextEditingController usernameController;
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController contactController;
+  late TextEditingController passwordController;
+  late TextEditingController locationController;
+
+  int selectedNumberOfSystems = 0;
+  String selectedStatus = "active";
+  String? selectedRole;
+
+  final List<String> roleOptions = [
+    "Pure aqua engineer",
+    "dealer",
+    "admin",
+    "supervisor",
+    "operator"
+  ];
+
+  final UserController userController = Get.find<UserController>();
+
+  @override
+  void initState() {
+    super.initState();
+    usernameController = TextEditingController(text: widget.user.username);
+    nameController = TextEditingController(text: widget.user.name);
+    emailController = TextEditingController(text: widget.user.email);
+    contactController = TextEditingController(text: widget.user.contactNumber);
+    passwordController = TextEditingController(text: widget.user.password);
+    locationController = TextEditingController(text: widget.user.location);
+    selectedNumberOfSystems = widget.user.numberOfSystems;
+    selectedStatus = widget.user.status;
+    selectedRole = widget.user.role;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Update User",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+      content: Container(
+        width: 600,
+        child: SingleChildScrollView(
+          child: Wrap(
+            spacing: 20,
+            runSpacing: 20,
+            children: [
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: usernameController,
+                  decoration: InputDecoration(
+                    labelText: "Username",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "Name",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                  ),
+                  enabled: false,
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: contactController,
+                  decoration: InputDecoration(
+                    labelText: "Contact Number",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: DropdownButtonFormField<int>(
+                  decoration: InputDecoration(
+                    labelText: "Number of Systems",
+                    border: OutlineInputBorder(),
+                  ),
+                  value: selectedNumberOfSystems,
+                  items: List.generate(10, (index) => index)
+                      .map((number) => DropdownMenuItem<int>(
+                            value: number,
+                            child: Text(number.toString()),
+                          ))
+                      .toList(),
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      selectedNumberOfSystems = newValue!;
+                    });
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: TextField(
+                  controller: locationController,
+                  decoration: InputDecoration(
+                    labelText: "Location",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: "Role",
+                    border: OutlineInputBorder(),
+                  ),
+                  value: selectedRole,
+                  items: roleOptions.map((String role) {
+                    return DropdownMenuItem<String>(
+                      value: role,
+                      child: Text(role),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedRole = newValue;
+                    });
+                  },
+                ),
+              ),
+              Container(
+                width: 280,
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Status"),
+                    Row(
+                      children: [
+                        Radio<String>(
+                          value: "active",
+                          groupValue: selectedStatus,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedStatus = value!;
+                            });
+                          },
+                        ),
+                        Text("Active"),
+                        SizedBox(width: 20),
+                        Radio<String>(
+                          value: "inactive",
+                          groupValue: selectedStatus,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedStatus = value!;
+                            });
+                          },
+                        ),
+                        Text("Inactive"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("Cancel", style: TextStyle(color: Colors.black)),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final updatedUser = UserModel(
+              id: widget.user.id,
+              username: usernameController.text,
+              name: nameController.text,
+              email: emailController.text,
+              contactNumber: contactController.text,
+              password: passwordController.text,
+              numberOfSystems: selectedNumberOfSystems,
+              location: locationController.text,
+              role: selectedRole ?? "",
+              status: selectedStatus,
+            );
+            userController.updateUser(widget.user.email, updatedUser);
+            Navigator.pop(context);
+          },
+          child: Text("Update", style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
         ),
       ],

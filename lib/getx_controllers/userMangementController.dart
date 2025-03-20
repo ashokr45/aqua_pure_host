@@ -60,4 +60,37 @@ class UserController extends GetxController {
   void updateSearchQuery(String query) {
     searchQuery.value = query;
   }
+
+
+   void deleteUser(String email) async {
+    try {
+      isLoading(true);
+      bool success = await UserManagementApi.deleteUser(email);
+      if (success) {
+        userList.removeWhere((user) => user.email == email);
+        Get.snackbar("Success", "User deleted successfully");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to delete user");
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // Update user.
+  void updateUser(String email, UserModel updatedUser) async {
+    try {
+      isLoading(true);
+      var user = await UserManagementApi.updateUser(email, updatedUser);
+      int index = userList.indexWhere((u) => u.email == email);
+      if (index != -1) {
+        userList[index] = user;
+        Get.snackbar("Success", "User updated successfully");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to update user");
+    } finally {
+      isLoading(false);
+    }
+  }
 }
