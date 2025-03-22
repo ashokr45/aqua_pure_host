@@ -8,8 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -17,7 +16,7 @@ jobs:
           flutter-version: '3.27.3'
           channel: stable
 
-      - name: Build Web
+      - name: Build Web App
         run: |
           flutter clean
           flutter pub get
@@ -33,7 +32,11 @@ jobs:
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          entryPoint: build/web
-          args: --delete --size-only --exclude ".dart_tool/*" --exclude ".git/*" --exclude "*.map"
-        env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+          args: |
+            sync build/web s3://${{ secrets.S3_BUCKET_NAME }} \
+            --size-only \
+            --delete \
+            --exclude ".dart_tool/*" \
+            --exclude ".git/*" \
+            --exclude "*.map" \
+            --exclude "*.symbols"
