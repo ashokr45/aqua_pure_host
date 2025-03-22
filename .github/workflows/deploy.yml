@@ -8,7 +8,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -30,13 +31,15 @@ jobs:
           aws-region: ap-south-1
 
       - name: Deploy to S3
+        env:
+          # Ensure that this secret is set in your repo's Secrets (Settings > Secrets and variables > Actions)
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: |
-            sync build/web s3://${{ secrets.S3_BUCKET_NAME }} \
-            --size-only \
-            --delete \
-            --exclude ".dart_tool/*" \
-            --exclude ".git/*" \
-            --exclude "*.map" \
-            --exclude "*.symbols"
+          args: sync build/web s3://${{ secrets.S3_BUCKET_NAME }} \
+                --size-only \
+                --delete \
+                --exclude ".dart_tool/*" \
+                --exclude ".git/*" \
+                --exclude "*.map" \
+                --exclude "*.symbols"
