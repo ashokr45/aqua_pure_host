@@ -13,7 +13,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.3'  # Verified stable version
+          flutter-version: '3.27.3'  # Verified stable version
           channel: stable
 
       - name: Update Web Configuration
