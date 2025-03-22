@@ -31,9 +31,11 @@ jobs:
           aws-region: ap-south-1
 
       - name: Deploy to S3
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          entryPoint: build/web
-          args: --delete --size-only --exclude ".dart_tool/*" --exclude ".git/*" --exclude "*.map" --exclude "*.symbols"
-        env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+        run: |
+          aws s3 sync build/web s3://${{ secrets.S3_BUCKET_NAME }} \
+            --delete \
+            --size-only \
+            --exclude ".dart_tool/*" \
+            --exclude ".git/*" \
+            --exclude "*.map" \
+            --exclude "*.symbols"
