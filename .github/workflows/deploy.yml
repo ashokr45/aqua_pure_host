@@ -3,7 +3,7 @@ name: Deploy Flutter Web to AWS S3
 on:
   push:
     branches:
-      - main  # Change to your main branch
+      - main
 
 jobs:
   deploy:
@@ -15,26 +15,28 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'  # Use your specific Flutter version
+          flutter-version: '3.16.9'  # Explicit stable version
           channel: stable
 
       - name: Enable Web Support
         run: flutter config --enable-web
 
       - name: Install Dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons --web-renderer html
-
-      - name: Verify Build Output
-        run: ls -lah build/web  # Debugging step to verify files
+        run: flutter build web \
+          --release \
+          --no-tree-shake-icons \
+          --dart-define=FLUTTER_WEB_RENDERER=html
 
       - name: Deploy to AWS S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --delete --follow-symlinks
-          folder: build/web  # Critical fix: Only deploy web build output
+          args: --delete
+          folder: build/web
           bucket: ${{ secrets.S3_BUCKET_NAME }}
           key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
