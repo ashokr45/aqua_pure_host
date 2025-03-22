@@ -13,25 +13,33 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.3'
+          flutter-version: '3.22.3'  # Verified stable version
           channel: stable
+
+      - name: Update Web Configuration
+        run: |
+          rm -rf web
+          flutter create --platforms web .
 
       - name: Install Dependencies
         run: |
-          flutter pub upgrade --major-versions
           flutter pub get
           flutter pub run build_runner build --delete-conflicting-outputs
 
-      - name: Verify Packages
-        run: flutter pub deps
+      - name: Build Web Release
+        run: |
+          flutter build web \
+            --release \
+            --no-tree-shake-icons \
+            --dart-define=FLUTTER_WEB_USE_SKIA=true
 
-      - name: Build Web
-        run: flutter build web --release --web-renderer html
+      - name: Verify Build Output
+        run: ls -lah build/web
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --delete
+          args: --size-only --delete
           folder: build/web
           bucket: ${{ secrets.S3_BUCKET_NAME }}
           key: ${{ secrets.AWS_ACCESS_KEY_ID }}
