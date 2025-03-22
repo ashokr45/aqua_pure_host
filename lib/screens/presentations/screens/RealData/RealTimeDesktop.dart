@@ -608,93 +608,91 @@ class QDataContainer2 extends StatelessWidget {
     return rowWidgets;
   }
 
-  Widget _buildDataRow(String? titleLeft, String? valueLeft, String? titleRight, String? valueRight) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left column
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(titleLeft ?? ''),
-                const SizedBox(height: 5),
-                Container(
-                  height: 25,
-                  width: 100,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: TColors.inactiveBtn,
-                  ),
-                  child: Text(valueLeft ?? ""),
+ Widget _buildDataRow(String? titleLeft, String? valueLeft, String? titleRight, String? valueRight) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5),
+    child: Row(
+      children: [
+        // Left column
+        Expanded(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 175, // Fixed width for title
+                child: Text(titleLeft ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                height: 25,
+                width: 120, // Fixed width for value
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  color: TColors.inactiveBtn,
                 ),
-              ],
-            ),
+                child: Text(valueLeft ?? ""),
+              ),
+            ],
           ),
-          const SizedBox(width: 30),
-          // Right column
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(titleRight ?? ''),
-                const SizedBox(height: 5),
-                Container(
-                  height: 25,
-                  width: 100,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: TColors.inactiveBtn,
-                  ),
-                  child: Text(valueRight ?? ""),
+        ),
+        const SizedBox(width: 30),
+        // Right column
+        Expanded(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 175, // Fixed width for title
+                child: Text(titleRight ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                height: 25,
+                width: 120, // Fixed width for value
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  color: TColors.inactiveBtn,
                 ),
-              ],
-            ),
+                child: Text(valueRight ?? ""),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSingleDataRow(String? title, String? value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title ?? ''),
-                const SizedBox(height: 5),
-                Container(
-                  height: 25,
-                  width: 100,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: TColors.inactiveBtn,
-                  ),
-                  child: Text(value ?? ""),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 30),
-          Expanded(child: Container()),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
 
-// -------------------------------------------------------------------------
-// Dummy implementations for missing parts
-// -------------------------------------------------------------------------
-
-
+Widget _buildSingleDataRow(String? title, String? value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5),
+    child: Row(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 175, // Fixed width for title
+                child: Text(title ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                height: 25,
+                width: 120, // Fixed width for value
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  color: TColors.inactiveBtn,
+                ),
+                child: Text(value ?? ""),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 30),
+        Expanded(child: Container()), // Empty to maintain alignment
+      ],
+    ),
+  );
+}
+}
