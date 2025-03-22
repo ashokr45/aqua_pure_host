@@ -15,7 +15,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'  # Use your Flutter version
+          flutter-version: '3.x'  # Use your specific Flutter version
+          channel: stable
 
       - name: Enable Web Support
         run: flutter config --enable-web
@@ -24,14 +25,17 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons
+        run: flutter build web --release --no-tree-shake-icons --web-renderer html
+
+      - name: Verify Build Output
+        run: ls -lah build/web  # Debugging step to verify files
 
       - name: Deploy to AWS S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "ap-south-1" 
+          args: --delete --follow-symlinks
+          folder: build/web  # Critical fix: Only deploy web build output
+          bucket: ${{ secrets.S3_BUCKET_NAME }}
+          key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: 'ap-south-1'
