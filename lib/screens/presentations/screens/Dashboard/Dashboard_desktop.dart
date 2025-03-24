@@ -406,7 +406,7 @@ class PurifierDataSource extends DataGridSource {
   PurifierDataSource({required List<Purifier> purifierData}) {
     _purifierData = purifierData.map<DataGridRow>((e) => DataGridRow(cells: [
           DataGridCell<int>(columnName: 'id', value: e.id),
-          DataGridCell<int>(columnName: 'serialno', value: e.salesOrderNumber),
+          DataGridCell<String>(columnName: 'serialno', value: e.salesOrderNumber),
           DataGridCell<String>(columnName: 'name', value: e.name),
           DataGridCell<String>(columnName: 'date', value: e.manufactureDate),
           DataGridCell<String>(columnName: 'Location', value: e.location),

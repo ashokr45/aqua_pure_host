@@ -1,15 +1,12 @@
 import 'package:aqua_pure/apis/purifier_apis.dart';
 import 'package:get/get.dart';
-
 import '../models/purifier_model.dart';
-
 
 class PurifierController extends GetxController {
   var isLoading = true.obs;
   var purifierList = <Purifier>[].obs;
   var filteredPurifierList = <Purifier>[].obs;
 
-  // Sorting state: sortColumn holds the name and sortDirection true for ascending, false for descending
   var sortColumn = ''.obs;
   var sortDirection = true.obs;
 
@@ -40,7 +37,7 @@ class PurifierController extends GetxController {
         purifierList.where((purifier) {
           return purifier.name.toLowerCase().contains(query.toLowerCase()) ||
               purifier.location.toLowerCase().contains(query.toLowerCase()) ||
-              purifier.serialno.toString().contains(query) ||
+              purifier.serialno.contains(query) ||
               purifier.manufactureDate.contains(query);
         }).toList(),
       );
@@ -49,11 +46,10 @@ class PurifierController extends GetxController {
 
   void sortPurifiers(String columnName) {
     if (sortColumn.value == columnName) {
-      // Reverse sort order if same column is tapped again
       sortDirection.value = !sortDirection.value;
     } else {
       sortColumn.value = columnName;
-      sortDirection.value = true; // default to ascending
+      sortDirection.value = true;
     }
     List<Purifier> sorted = List.from(filteredPurifierList);
     sorted.sort((a, b) {
@@ -64,6 +60,9 @@ class PurifierController extends GetxController {
           break;
         case 'serialno':
           compareResult = a.serialno.compareTo(b.serialno);
+          break;
+        case 'systemModelNumber':
+          compareResult = a.systemModelNumber.compareTo(b.systemModelNumber);
           break;
         case 'name':
           compareResult = a.name.compareTo(b.name);

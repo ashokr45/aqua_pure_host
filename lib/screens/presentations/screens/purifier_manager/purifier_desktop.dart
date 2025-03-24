@@ -7,8 +7,8 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../../../models/purifier_model.dart';
+import '../../../../apis/purifier_apis.dart';
 
 class PurifierDesktop extends StatefulWidget {
   const PurifierDesktop({Key? key}) : super(key: key);
@@ -22,7 +22,6 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
   late PurifierDataSource purifierDataSource;
   final TextEditingController searchController = TextEditingController();
 
-  // Local sorting state variables for UI icon updates.
   String? _sortColumn;
   DataGridSortDirection _sortDirection = DataGridSortDirection.ascending;
 
@@ -32,12 +31,10 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
       backgroundColor: Colors.blue.withOpacity(0.3),
       body: Row(
         children: [
-          // Side Menu
           SizedBox(
             width: 250,
             child: sideMenu(),
           ),
-          // Main Content Area
           Expanded(
             child: Column(
               children: [
@@ -55,13 +52,10 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
                   actions: [
                     IconButton(
                       icon: const Icon(Iconsax.notification),
-                      onPressed: () {
-                        // Notification functionality here
-                      },
+                      onPressed: () {},
                     ),
                   ],
                 ),
-                // Search Field and Add Button
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -110,13 +104,11 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
                     ],
                   ),
                 ),
-                // DataGrid Table
                 Expanded(
                   child: Obx(() {
                     if (purifierController.isLoading.value) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    // Update data source with the filtered list from the controller.
                     purifierDataSource = PurifierDataSource(
                       purifierData: purifierController.filteredPurifierList,
                       sortColumn: _sortColumn,
@@ -176,7 +168,6 @@ class _PurifierDesktopState extends State<PurifierDesktop> {
                               ),
                             ),
                           ),
-                          // New Column: Sales Model Number
                           GridColumn(
                             columnName: 'systemModelNumber',
                             label: Container(
@@ -359,7 +350,6 @@ class PurifierDataSource extends DataGridSource {
     DataGridSortDirection sortDirection = DataGridSortDirection.ascending,
   }) {
     _purifierData = purifierData;
-    // Since sorting is handled in the controller, we only map the data here.
     buildDataGridRows();
   }
 
@@ -369,13 +359,10 @@ class PurifierDataSource extends DataGridSource {
     _dataGridRows = _purifierData.map<DataGridRow>((e) {
       return DataGridRow(cells: [
         DataGridCell<int>(columnName: 'id', value: e.id),
-        DataGridCell<int>(columnName: 'serialno', value: e.serialno),
-        // New cell for Sales Model Number (systemModelNumber)
-        DataGridCell<String>(
-            columnName: 'systemModelNumber', value: e.systemModelNumber),
+        DataGridCell<String>(columnName: 'serialno', value: e.serialno),
+        DataGridCell<String>(columnName: 'systemModelNumber', value: e.systemModelNumber),
         DataGridCell<String>(columnName: 'name', value: e.name),
-        DataGridCell<String>(
-            columnName: 'manufactureDate', value: e.manufactureDate),
+        DataGridCell<String>(columnName: 'manufactureDate', value: e.manufactureDate),
         DataGridCell<String>(columnName: 'location', value: e.location),
         DataGridCell<String>(columnName: 'status', value: e.status),
         DataGridCell<Widget>(
@@ -386,13 +373,26 @@ class PurifierDataSource extends DataGridSource {
               IconButton(
                 icon: const Icon(Iconsax.edit, color: Colors.green),
                 onPressed: () {
-                  print('Edit button clicked for ${e.name}');
+                  Get.to(() => AddPurifierDesktop(purifier: e));
                 },
               ),
               IconButton(
                 icon: const Icon(Iconsax.trash, color: Colors.red),
-                onPressed: () {
-                  print('Delete button clicked for ${e.name}');
+                onPressed: () async {
+                  try {
+                    await PurifierApi.deletePurifier(e.id);
+                    Get.find<PurifierController>().fetchPurifiers();
+                                 Get.snackbar(
+        'Success',
+        'Purifier deleted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
+      );
+                  } catch (e) {
+                    Get.snackbar('Error', 'Failed to delete purifier: $e');
+                  }
                 },
               ),
             ],
@@ -419,8 +419,7 @@ class PurifierDataSource extends DataGridSource {
             padding: const EdgeInsets.all(8.0),
             color: Colors.white,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               decoration: BoxDecoration(
                 color: bgColor,
                 borderRadius: BorderRadius.circular(4.0),

@@ -1,116 +1,129 @@
 import 'package:aqua_pure/apis/purifier_apis.dart';
+import 'package:aqua_pure/apis/user_api_purifier.dart';
 import 'package:aqua_pure/common/sideMenu.dart';
-import 'package:aqua_pure/screens/presentations/screens/purifier_manager/PurifyManager.dart';
+import 'package:aqua_pure/getx_controllers/purifier_controller.dart';
+import 'package:aqua_pure/models/purifier_model.dart';
+import 'package:aqua_pure/models/user_model.dart';
+import 'package:aqua_pure/models/user_model_purifier.dart';
+import 'package:aqua_pure/screens/presentations/screens/purifier_manager/purifier_desktop.dart';
+import 'package:aqua_pure/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AddPurifierDesktop extends StatefulWidget {
-  const AddPurifierDesktop({super.key});
+  final Purifier? purifier;
+  const AddPurifierDesktop({Key? key, this.purifier}) : super(key: key);
 
   @override
-  State<AddPurifierDesktop> createState() => _AddPurifierDesktopState();
+  _AddPurifierDesktopState createState() => _AddPurifierDesktopState();
 }
 
 class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
   int currentStep = 0;
-  final TextEditingController serialNumberController = TextEditingController();
-  final TextEditingController salesOrderController = TextEditingController();
-  // New controller for System Model Number
-  final TextEditingController systemModelNumberController = TextEditingController();
-  final TextEditingController manufactureDateController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
 
-  // Configuration items list
-  List<Map<String, dynamic>> configItems = [
-    {'name': 'Feed Tank', 'isSelected': false},
-    {'name': 'Raw Water Tank Low Level Switch', 'isSelected': false},
-    {'name': 'Feed Pump', 'isSelected': false},
-    {'name': 'Prechlorination dosing', 'isSelected': false},
-    {'name': 'Prechlorination dosing Low Level Switch', 'isSelected': false},
-    {'name': 'Dechlorination dosing', 'isSelected': false},
-    {'name': 'Dechlorination dosing Low Level Switch', 'isSelected': false},
-    {'name': 'Inlet Valve (Included)', 'isSelected': false},
-    {'name': 'Antiscalant dosing', 'isSelected': false},
-    {'name': 'Antiscalant dosing Low Level Switch', 'isSelected': false},
-    {'name': 'Permeate Flush Valve', 'isSelected': false},
-    {'name': 'Prefilter pressure Transducer (PT1)', 'isSelected': false},
-    {'name': 'Prefilter', 'isSelected': false},
-    {'name': 'Post filter pressure Transducer (PT2)', 'isSelected': false},
-    {'name': 'Feed pH (pH1)', 'isSelected': false},
-    {'name': 'Feed ORP (ORP)', 'isSelected': false},
-    {'name': 'Feed TDS (TDS1)', 'isSelected': false},
-    {'name': 'Blending Valve', 'isSelected': false},
-    {'name': 'Pressure Switch Low (Included)', 'isSelected': false},
-    {'name': 'RO High Pressure Pump (Included)', 'isSelected': false},
-    {'name': 'Pump Pressure Transducer (PT3)', 'isSelected': false},
-    {'name': 'Globe Valve', 'isSelected': false},
-    {'name': 'System Pressure Transducer (PT4)', 'isSelected': false},
-    {'name': 'Blending Needle Valve', 'isSelected': false},
-    {'name': 'Pressure Switch High', 'isSelected': false},
-    {'name': 'Product TDS (TDS2) (Included)', 'isSelected': false},
-    {'name': 'Post pH', 'isSelected': false},
-    {'name': 'Post pH low Level Switch', 'isSelected': false},
-    {'name': 'Post Chlorination Low Level Switch', 'isSelected': false},
-    {'name': 'UV Disinfection', 'isSelected': false},
-    {'name': 'Product Flow Meter (F1)', 'isSelected': false},
-    {'name': 'Product pH (pH2)', 'isSelected': false},
-    {'name': 'Interstage Pressure Transducer (PT5)', 'isSelected': false},
-    {'name': 'Recirculation Valve', 'isSelected': false},
-    {'name': 'Recirculation Flow Meter (F3)', 'isSelected': false},
-    {'name': 'Reject Pressure Transducer (PT6)', 'isSelected': false},
-    {'name': 'Flush Valve', 'isSelected': false},
-    {'name': 'Reject Valve', 'isSelected': false},
-    {'name': 'Reject Flow Meter (F2)', 'isSelected': false},
-    {'name': 'Permeate Water Tank High - High Level Switch', 'isSelected': false},
-    {'name': 'Permeate Water Tank High - Medium Level Switch', 'isSelected': false},
-    {'name': 'Divert Valve', 'isSelected': false},
-    {'name': 'Permeate Water Tank Low Level Switch', 'isSelected': false},
-    {'name': 'Distribution Pump', 'isSelected': false},
-    {'name': 'Product Pressure Transducer', 'isSelected': false},
-    {'name': 'Product Pressure Switch', 'isSelected': false},
-  ];
+  // Controllers for Purifier Details
+  TextEditingController _systemModelController = TextEditingController();
+  TextEditingController _serialController = TextEditingController();
+  TextEditingController _salesOrderController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _manufacturerDateController = TextEditingController();
+  TextEditingController _locationController = TextEditingController();
+  // Remove status controller in favor of radio buttons
+  String _status = 'active';
 
-  // Locked configuration items (pre-selected and non-editable)
-  final List<String> lockedItems = [
-    'Feed Tank',
-    'Inlet Valve (Included)',
-    'Prefilter pressure Transducer (PT1)',
-    'Prefilter',
-    'Post filter pressure Transducer (PT2)',
-    'Feed pH (pH1)',
-    'Feed TDS (TDS1)',
-    'Pressure Switch Low (Included)',
-    'RO High Pressure Pump (Included)',
-    'Pump Pressure Transducer (PT3)',
-    'Globe Valve',
-    'Product TDS (TDS2) (Included)',
-    'Product Flow Meter (F1)',
-    'Reject Valve',
-    'Reject Flow Meter (F2)',
-  ];
+  // Users (for user role selection)
+  TextEditingController _userRoleSearchController = TextEditingController();
+  List<User> users = [];
+  List<User> filteredUsers = [];
+  List<int> selectedUserIds = [];
 
-  // List of available user roles
-  List<String> userRoles = [
-    'UserName1 (Supervisor)',
-    'UserName2 (Pure Aqua Engineer)',
-    'UserName3 (Operator)',
-    'UserName4 (Dealer)',
-    'UserName5 (Admin)',
-    'UserName6 (Dealer)',
-    'UserName7 (Admin)',
-    'UserName8 (Pure Aqua Engineer)',
+  // Configuration map (for purifier configurations)
+  Map<String, bool> configuration = {};
+  final List<String> configurationKeys = [
+    "FEED_TANK",
+    "INLET_VALVE_INCLUDED",
+    "PREFILTER_PRESSURE_TRANSDUCER_PT1",
+    "PREFILTER",
+    "POST_FILTER_PRESSURE_TRANSDUCER_PT2",
+    "FEED_PH_PH1",
+    "FEED_TDS_TDS1",
+    "PRESSURE_SWITCH_LOW_INCLUDED",
+    "RO_HIGH_PRESSURE_PUMP_INCLUDED",
+    "PUMP_PRESSURE_TRANSDUCER_PT3",
+    "GLOBE_VALVE",
+    "PRODUCT_TDS_TDS2_INCLUDED",
+    "PRODUCT_FLOW_METER_F1",
+    "REJECT_VALVE",
+    "REJECT_FLOW_METER_F2",
+    "RAW_TANK_LOW_LEVEL_SWITCH",
+    "FEED_PUMP",
+    "PRECHLORINATION_DOSING",
+    "PRECHLORINATION_DOSING_LOW_LEVEL_SWITCH",
+    "DECHLORINATION_DOSING",
+    "DECHLORINATION_DOSING_LOW_LEVEL_SWITCH",
+    "ANTISCALANT_DOSING",
+    "ANTISCALANT_DOSING_LOW_LEVEL_SWITCH",
+    "PERMEATE_FLUSH_VALVE",
+    "FEED_ORP_ORP",
+    "BLENDING_VALVE",
+    "SYSTEM_PRESSURE_TRANSDUCER_PT4",
+    "BLENDING_NEEDLE_VALVE",
+    "PRESSURE_SWITCH_HIGH",
+    "POST_PH",
+    "POST_PH_LOW_LEVEL_SWITCH",
+    "POST_CHLORINATION_LOW_LEVEL_SWITCH",
+    "UV_DISINFECTION",
+    "PRODUCT_PH_PH2",
+    "INTERSTAGE_PRESSURE_TRANSDUCER_PTS",
+    "RECIRCULATION_VALVE",
+    "RECIRCULATION_FLOW_METER_F3",
+    "REJECT_PRESSURE_TRANSDUCER_PT6",
+    "FLUSH_VALVE",
+    "PERMEATE_WATER_TANK_HIGH_HIGH_LEVEL_SWITCH",
+    "PERMEATE_WATER_TANK_HIGH_MEDIUM_LEVEL_SWITCH",
+    "DIVERT_VALVE",
   ];
-  List<String> selectedRoles = [];
-  List<String> filteredUserRoles = [];
-  final TextEditingController userRoleSearchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Prepopulate filtered user roles with all roles initially.
-    filteredUserRoles = List.from(userRoles);
+    fetchUsers();
+    initializeConfiguration();
+    if (widget.purifier != null) {
+      prefillFields(widget.purifier!);
+    }
+    // Prepopulate filtered users list
+    filteredUsers = List.from(users);
+  }
+
+  void fetchUsers() async {
+    try {
+      users = await UserApi.fetchUsers();
+      filteredUsers = users;
+      setState(() {});
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch users: $e');
+    }
+  }
+
+  void initializeConfiguration() {
+    configuration = Map.fromIterable(configurationKeys,
+        key: (k) => k, value: (k) => false);
+  }
+
+  void prefillFields(Purifier purifier) {
+    _systemModelController.text = purifier.systemModelNumber;
+    _serialController.text = purifier.serialno;
+    _salesOrderController.text = purifier.salesOrderNumber;
+    _nameController.text = purifier.name;
+    _manufacturerDateController.text = purifier.manufactureDate;
+    _locationController.text = purifier.location;
+    _status = purifier.status;
+    selectedUserIds = List.from(purifier.users);
+    configuration = Map.from(purifier.configuration);
+    setState(() {});
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -122,10 +135,12 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
     );
     if (picked != null) {
       setState(() {
-        manufactureDateController.text = "${picked.toLocal()}".split(' ')[0];
+        _manufacturerDateController.text = "${picked.toLocal()}".split(' ')[0];
       });
     }
   }
+
+  // ================== UI Widgets ======================
 
   Widget _buildStepIndicator() {
     return Container(
@@ -174,220 +189,233 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
   }
 
   Widget _buildPurifierDetails() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Purifier Details",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Purifier Details",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            SizedBox(height: 30),
+            _buildTextField(
+                controller: _systemModelController,
+                label: "System Model Number"),
+            SizedBox(height: 20),
+            _buildTextField(
+                controller: _serialController, label: "Serial Number"),
+            SizedBox(height: 20),
+            _buildTextField(
+                controller: _salesOrderController,
+                label: "Sales Order Number"),
+            SizedBox(height: 20),
+            _buildTextField(
+                controller: _nameController, label: "Purifier Name"),
+            SizedBox(height: 20),
+            _buildTextField(
+              controller: _manufacturerDateController,
+              label: "Manufacturer Date",
+              suffixIcon: IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: () => _selectDate(context),
+              ),
+            ),
+            SizedBox(height: 20),
+            _buildTextField(
+                controller: _locationController, label: "Location"),
+            SizedBox(height: 20),
+            // Radio buttons for status selection
+            Text(
+              "Status",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                Radio<String>(
+                  value: 'active',
+                  groupValue: _status,
+                  onChanged: (value) {
+                    setState(() {
+                      _status = value!;
+                    });
+                  },
+                ),
+                Text("Active"),
+                SizedBox(width: 20),
+                Radio<String>(
+                  value: 'inactive',
+                  groupValue: _status,
+                  onChanged: (value) {
+                    setState(() {
+                      _status = value!;
+                    });
+                  },
+                ),
+                Text("Inactive"),
+              ],
+            ),
+            SizedBox(height: 30),
+            _buildNavigationButtons(),
+          ],
         ),
-        SizedBox(height: 30),
-        _buildTextField(
-          controller: serialNumberController,
-          label: "Serial Number",
-        ),
-        SizedBox(height: 20),
-        _buildTextField(
-          controller: salesOrderController,
-          label: "Sales Order Number",
-        ),
-        SizedBox(height: 20),
-        // New field: System Model Number
-        _buildTextField(
-          controller: systemModelNumberController,
-          label: "System Model Number",
-        ),
-        SizedBox(height: 20),
-        _buildTextField(
-          controller: manufactureDateController,
-          label: "Manufacture Date",
-          suffixIcon: IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context),
-          ),
-        ),
-        SizedBox(height: 20),
-        _buildTextField(
-          controller: locationController,
-          label: "Location",
-        ),
-        SizedBox(height: 30),
-        _buildNavigationButtons(),
-      ],
+      ),
     );
   }
 
   Widget _buildPurifierConfigurations() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Purifier Configurations",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 20),
-        // Header row with column headings
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          color: Colors.blue,
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                alignment: Alignment.center,
-                child: Text(
-                  'Sr.no',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Expanded(
-                child: Container(
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Purifier Configurations",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          SizedBox(height: 20),
+          // Header row
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            color: Colors.blue,
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
                   alignment: Alignment.center,
                   child: Text(
-                    'Variant',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    'Sr.no',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-              Container(
-                width: 80,
-                alignment: Alignment.center,
-                child: Text(
-                  'Checkbox',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // List of configuration rows
-        Container(
-          height: 400,
-          child: ListView.builder(
-            itemCount: configItems.length,
-            itemBuilder: (context, index) {
-              // Check if this config item should be locked (pre-selected and non-editable)
-              bool isLocked = lockedItems.contains(configItems[index]['name']);
-              if (isLocked) {
-                configItems[index]['isSelected'] = true;
-              }
-              return Container(
-                padding: EdgeInsets.symmetric(vertical: 4),
-                color: Colors.white,
-                child: Row(
-                  children: [
-                    // Sr.no Column
-                    Container(
-                      width: 430,
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        '${index + 1}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Configuration',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                    // Variant Column
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.all(8),
+                  ),
+                ),
+                Container(
+                  width: 80,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Checkbox',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // List of configuration rows
+          Expanded(
+            child: ListView.builder(
+              itemCount: configurationKeys.length,
+              itemBuilder: (context, index) {
+                final key = configurationKeys[index];
+                return Container(
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        alignment: Alignment.center,
                         child: Text(
-                          configItems[index]['name'],
+                          '${index + 1}',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                    // Checkbox Column
-                    Container(
-                      width: 80,
-                      alignment: Alignment.center,
-                      child: Checkbox(
-                        value: configItems[index]['isSelected'],
-                        onChanged: isLocked
-                            ? null
-                            : (bool? value) {
-                                setState(() {
-                                  configItems[index]['isSelected'] = value;
-                                });
-                              },
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text(
+                            key,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-        SizedBox(height: 20),
-        _buildNavigationButtons(),
-      ],
-    );
-  }
-
-  Widget _buildUserRole() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "User Role",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 30),
-        // Search bar for user role filtering
-        TextField(
-          controller: userRoleSearchController,
-          decoration: InputDecoration(
-            labelText: "Search User Role",
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            setState(() {
-              filteredUserRoles = userRoles
-                  .where((role) =>
-                      role.toLowerCase().contains(value.toLowerCase()))
-                  .toList();
-            });
-          },
-        ),
-        SizedBox(height: 20),
-        // Display selected roles as chips
-        if (selectedRoles.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            children: selectedRoles.map((role) {
-              return Chip(
-                label: Text(role),
-                onDeleted: () {
-                  setState(() {
-                    selectedRoles.remove(role);
-                  });
-                },
-              );
-            }).toList(),
-          ),
-        SizedBox(height: 20),
-        // Wrap the user roles ListView with a Scrollbar
-        Container(
-          height: 400,
-          child: Scrollbar(
-            child: ListView.builder(
-              itemCount: filteredUserRoles.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(filteredUserRoles[index]),
-                  onTap: () {
-                    setState(() {
-                      if (!selectedRoles.contains(filteredUserRoles[index])) {
-                        selectedRoles.add(filteredUserRoles[index]);
-                      }
-                    });
-                  },
+                      Container(
+                        width: 80,
+                        alignment: Alignment.center,
+                        child: Checkbox(
+                          value: configuration[key] ?? false,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              configuration[key] = value!;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
           ),
-        ),
-        SizedBox(height: 20),
-        _buildNavigationButtons(isLastStep: true),
-      ],
+          SizedBox(height: 20),
+          _buildNavigationButtons(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserRole() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("User Role",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          SizedBox(height: 30),
+          // Search bar for filtering users
+          TextField(
+            controller: _userRoleSearchController,
+            decoration: InputDecoration(
+              labelText: "Search User Role",
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              setState(() {
+                filteredUsers = users
+                    .where((user) => user.username
+                        .toLowerCase()
+                        .contains(value.toLowerCase()))
+                    .toList();
+              });
+            },
+          ),
+          SizedBox(height: 20),
+          // List of users with checkboxes
+          Expanded(
+            child: Scrollbar(
+              child: ListView.builder(
+                itemCount: filteredUsers.length,
+                itemBuilder: (context, index) {
+                  final user = filteredUsers[index];
+                  return CheckboxListTile(
+                    title: Text("${user.username} (${user.role})"),
+                    value: selectedUserIds.contains(user.id),
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value == true) {
+                          selectedUserIds.add(user.id);
+                        } else {
+                          selectedUserIds.remove(user.id);
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          _buildNavigationButtons(isLastStep: true),
+        ],
+      ),
     );
   }
 
@@ -420,16 +448,19 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
               });
             },
             icon: Icon(Iconsax.arrow_left, color: Colors.black),
-            label: Text('Back', style: TextStyle(color: Colors.black)),
+            label: Text(
+              'Back',
+              style: TextStyle(color: Colors.black),
+            ),
             style: OutlinedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             ),
           ),
         SizedBox(width: 16),
         ElevatedButton.icon(
-          onPressed: () async {
+          onPressed: () {
             if (isLastStep) {
-              await _submitForm();
+              submitPurifier();
             } else {
               setState(() {
                 currentStep++;
@@ -451,47 +482,90 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
     );
   }
 
-  // This function validates the fields, constructs the data payload, and calls the API.
-  Future<void> _submitForm() async {
-    if (serialNumberController.text.isEmpty ||
-        salesOrderController.text.isEmpty ||
-        systemModelNumberController.text.isEmpty || // Validate new field
-        manufactureDateController.text.isEmpty ||
-        locationController.text.isEmpty) {
-      Get.snackbar("Error", "Please fill all required fields.");
-      return;
+  // ================== Submit Function ======================
+
+ void submitPurifier() async {
+  final purifierData = {
+    "user_ids": selectedUserIds,
+    "purifier_manager": {
+      "system_model_number": _systemModelController.text,
+      "serial_number": _serialController.text,
+      "sales_order_number": _salesOrderController.text,
+      "purifier_name": _nameController.text,
+      "manufacture_date": _manufacturerDateController.text,
+      "location": _locationController.text,
+      "status": _status,
+    },
+    "configuration": configuration,
+  };
+
+  try {
+    if (widget.purifier == null) {
+      print('Adding purifier...');
+      await PurifierApi.addPurifier(purifierData);
+      print('Purifier added successfully');
+     if (mounted) {
+     
+      Future.delayed(Duration(milliseconds: 500), () {
+        print('Navigating back...');
+        Get.to(PurifierDesktop());
+
+         Get.snackbar(
+        'Success',
+        'Purifier added successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
+      );
+      });
+
+      
+    }
+    print('Refreshing purifier list...');
+    Get.find<PurifierController>().fetchPurifiers();
+    } else {
+      print('Updating purifier...');
+      await PurifierApi.updatePurifier(widget.purifier!.id, purifierData);
+      print('Purifier updated successfully');
+      if (mounted) {
+        if (mounted) {
+     
+      Future.delayed(Duration(milliseconds: 500), () {
+        print('Navigating back...');
+        Get.to(PurifierDesktop());
+
+         Get.snackbar(
+        'Success',
+        'Purifier added successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
+      );
+      });
+
+      
+    }
+      }
     }
 
-    // Construct purifier data with necessary null handling
-    Map<String, dynamic> purifierData = {
-      "serial_number": serialNumberController.text.trim(),
-      "sales_order_number": salesOrderController.text.trim(),
-      // New field: system_model_number is added here
-      "system_model_number": systemModelNumberController.text.trim(),
-      // Example: using the serial number to generate a purifier name. Adjust as needed.
-      "purifier_name": "Purifier ${serialNumberController.text.trim()}",
-      "manufacture_date": manufactureDateController.text.trim(),
-      "location": locationController.text.trim(),
-      "status": "active",
-      // Assuming user id is 1 (or map selected role to user id as needed)
-      "user": 1,
-      // Optionally send configurations and roles if required by your API
-      "configurations": configItems
-          .where((item) => item['isSelected'] == true)
-          .map((item) => item['name'])
-          .toList(),
-      "roles": selectedRoles,
-    };
-
-    try {
-      await PurifierApi.addPurifier(purifierData);
-      Get.snackbar("Success", "Purifier added successfully.");
-      // Navigate to the purifier page; adjust the route name as per your app's routing.
-      await Get.to(() => purifyManager());
-    } catch (e) {
-      Get.snackbar("Error", "Failed to add purifier: ${e.toString()}");
+    Get.find<PurifierController>().fetchPurifiers();
+  } catch (e) {
+    print('Error: $e');
+    if (mounted) {
+      Get.snackbar(
+        'Error',
+        'Failed to ${widget.purifier == null ? "add" : "update"} purifier: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
+}
+
+  // ================== Main Build ======================
 
   @override
   Widget build(BuildContext context) {
