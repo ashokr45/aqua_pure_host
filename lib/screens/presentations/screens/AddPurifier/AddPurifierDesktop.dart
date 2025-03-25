@@ -537,7 +537,7 @@ class _AddPurifierDesktopState extends State<AddPurifierDesktop> {
 
          Get.snackbar(
         'Success',
-        'Purifier added successfully',
+        'Purifier Updated successfully',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,

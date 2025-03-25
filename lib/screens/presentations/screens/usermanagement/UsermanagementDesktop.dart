@@ -689,7 +689,7 @@ class _UpdateUserDialogState extends State<UpdateUserDialog> {
   String selectedStatus = "active";
   String? selectedRole;
 
-  final List<String> roleOptions = [
+  final List<String> roleOptionsUpdate = [
     "pure_aqua_engineer",
     "dealer",
     "admin",
@@ -816,7 +816,7 @@ class _UpdateUserDialogState extends State<UpdateUserDialog> {
                     border: OutlineInputBorder(),
                   ),
                   value: selectedRole,
-                  items: roleOptions.map((String role) {
+                  items: roleOptionsUpdate.map((String role) {
                     return DropdownMenuItem<String>(
                       value: role,
                       child: Text(role),
