@@ -467,7 +467,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
   String selectedStatus = "active";
 
   final List<String> roleOptions = [
-    "Pure Aqua Engineer",
+    "pure_aqua_engineer",
     "dealer",
     "admin",
     "supervisor",
